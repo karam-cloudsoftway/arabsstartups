@@ -1,0 +1,191 @@
+---
+import { CommentRepository } from "emdash";
+import Newsroom from "../../layouts/Newsroom.astro";
+import { formatDate } from "../../i18n";
+import { writeAudit } from "../../lib/audit/log";
+import { staffReplySchema } from "../../lib/comments/policy";
+import { createStaffReply } from "../../lib/comments/service";
+import { COMMENT_STATUS_LABELS } from "../../lib/inbox/labels";
+import { getDb, requireStaff } from "../../lib/runtime";
+import { denyResponse } from "../../lib/staff/deny";
+import { field, flashFrom, readStaffForm } from "../../lib/staff/forms";
+
+export const prerender = false;
+
+const decision = await requireStaff(Astro, "comments:moderate");
+if (!decision.ok) return denyResponse(decision);
+const { user } = decision;
+const db = await getDb();
+const emdash = Astro.locals.emdash;
+const statusParam = Astro.url.searchParams.get("status") ?? "pending";
+const status = ["pending", "approved", "spam"].includes(statusParam) ? statusParam : "pending";
+const self = `/newsroom/comments?status=${status}`;
+
+if (Astro.request.method === "POST") {
+	const form = await readStaffForm(Astro.request, Astro.url.origin);
+	if (!form || !emdash?.db) return Astro.redirect(`${self}&err=invalid`, 303);
+	const action = field(form, "action", 20);
+	const commentId = field(form, "commentId", 64);
+
+	if (action === "moderate") {
+		const next = field(form, "to", 20) as "approved" | "spam" | "trash" | "pending";
+		const expected = field(form, "expected", 20) as "approved" | "spam" | "trash" | "pending";
+		if (!["approved", "spam", "trash", "pending"].includes(next) || !commentId) {
+			return Astro.redirect(`${self}&err=invalid`, 303);
+		}
+		try {
+			if (emdash.handleCommentModerate) {
+				await emdash.handleCommentModerate(commentId, next, { id: user.id, name: user.name }, expected, Astro.request);
+			} else {
+				await new CommentRepository(emdash.db).updateStatus(commentId, next);
+			}
+		} catch (error) {
+			const code = (error as { code?: string }).code;
+			return Astro.redirect(`${self}&err=${code === "COMMENT_STATUS_CONFLICT" ? "stale" : "not_found"}`, 303);
+		}
+		await writeAudit(db, {
+			actorId: user.id,
+			actorEmail: user.email,
+			action: "comment.moderate",
+			targetType: "comment",
+			targetId: commentId,
+			detail: { from: expected, to: next },
+		});
+		return Astro.redirect(`${self}&ok=moderated`, 303);
+	}
+
+	if (action === "reply") {
+		const parsed = staffReplySchema.safeParse({
+			commentId,
+			body: field(form, "body", 4000),
+			identity: field(form, "identity", 10) || "team",
+		});
+		if (!parsed.success) return Astro.redirect(`${self}&err=invalid`, 303);
+		const repository = new CommentRepository(emdash.db);
+		const result = await createStaffReply(
+			db,
+			async (record) => {
+				const created = await repository.create(record);
+				return { id: created.id, status: created.status };
+			},
+			{ ...parsed.data, staff: { id: user.id, email: user.email, name: user.name } },
+		);
+		if (!result.ok) return Astro.redirect(`${self}&err=not_found`, 303);
+		await writeAudit(db, {
+			actorId: user.id,
+			actorEmail: user.email,
+			action: "comment.reply",
+			targetType: "comment",
+			targetId: result.id,
+			detail: { parentId: result.parentId, contentId: result.contentId, identity: parsed.data.identity },
+		});
+		return Astro.redirect(`${self}&ok=reply_posted`, 303);
+	}
+	return Astro.redirect(`${self}&err=invalid`, 303);
+}
+
+interface Row {
+	id: string;
+	content_id: string;
+	parent_id: string | null;
+	author_name: string;
+	author_email: string;
+	author_user_id: string | null;
+	body: string;
+	status: string;
+	created_at: string;
+	title: string | null;
+	slug: string | null;
+}
+const { results: rows } = await db
+	.prepare(
+		`SELECT c.id, c.content_id, c.parent_id, c.author_name, c.author_email, c.author_user_id, c.body,
+		        c.status, c.created_at, p.title AS title, p.slug AS slug
+		 FROM _emdash_comments c LEFT JOIN ec_posts p ON p.id = c.content_id
+		 WHERE c.collection = 'posts' AND c.status = ?
+		 ORDER BY c.created_at DESC LIMIT 100`,
+	)
+	.bind(status)
+	.all<Row>();
+const flash = flashFrom(Astro.url);
+---
+
+<Newsroom title="التعليقات" user={user}>
+	{flash && <p class="notice flash" role="status">{flash.text}</p>}
+	<p class="help">
+		تعليقات الزوّار لا تظهر قبل الموافقة. يظهر ردّك علنًا بوسم «فريق التحرير». الإدارة الكاملة متاحة أيضًا في
+		<a href="/_emdash/admin">لوحة المحتوى</a>.
+	</p>
+	<nav class="actions" aria-label="تصفية التعليقات" style="margin-block-end: var(--space-lg)">
+		{["pending", "approved", "spam"].map((s) => (
+			<a class="btn btn-secondary btn-sm" href={`/newsroom/comments?status=${s}`} aria-current={s === status ? "page" : undefined}>
+				{COMMENT_STATUS_LABELS[s]}
+			</a>
+		))}
+	</nav>
+
+	{rows.length === 0 ? <p class="panel">لا تعليقات في هذه القائمة.</p> : (
+		<ol class="thread">
+			{rows.map((row) => (
+				<li class:list={{ reply: !!row.author_user_id }} data-comment-id={row.id}>
+					<div>
+						<strong>{row.author_name}</strong>
+						{row.author_user_id && <span class="badge badge-accent">فريق التحرير</span>}
+						<span class="ltr help">{row.author_email}</span> ·{" "}
+						<time datetime={row.created_at}>{formatDate(row.created_at, "ar", true)}</time>
+					</div>
+					<div class="help">
+						على: {row.slug ? <a href={`/articles/${row.slug}`}>{row.title ?? row.slug}</a> : row.content_id}
+						{row.parent_id && " · ردّ ضمن نقاش"}
+					</div>
+					<p class="body">{row.body}</p>
+					<div class="actions">
+						{status !== "approved" && (
+							<form method="post" class="inline-form">
+								<input type="hidden" name="action" value="moderate" />
+								<input type="hidden" name="commentId" value={row.id} />
+								<input type="hidden" name="expected" value={row.status} />
+								<input type="hidden" name="to" value="approved" />
+								<button class="btn btn-primary btn-sm" type="submit">موافقة ونشر</button>
+							</form>
+						)}
+						{status !== "spam" && (
+							<form method="post" class="inline-form">
+								<input type="hidden" name="action" value="moderate" />
+								<input type="hidden" name="commentId" value={row.id} />
+								<input type="hidden" name="expected" value={row.status} />
+								<input type="hidden" name="to" value="spam" />
+								<button class="btn btn-secondary btn-sm" type="submit">مزعج</button>
+							</form>
+						)}
+						<form method="post" class="inline-form">
+							<input type="hidden" name="action" value="moderate" />
+							<input type="hidden" name="commentId" value={row.id} />
+							<input type="hidden" name="expected" value={row.status} />
+							<input type="hidden" name="to" value="trash" />
+							<button class="btn btn-secondary btn-sm" type="submit">حذف</button>
+						</form>
+					</div>
+					{status === "approved" && (
+						<form method="post" class="form" style="margin-block-start: var(--space-md)">
+							<input type="hidden" name="action" value="reply" />
+							<input type="hidden" name="commentId" value={row.id} />
+							<div class="field">
+								<label for={`reply-${row.id}`}>ردّ علني</label>
+								<textarea id={`reply-${row.id}`} name="body" rows="2" maxlength="2000" required></textarea>
+							</div>
+							<div class="actions">
+								<label for={`identity-${row.id}`}>باسم</label>
+								<select id={`identity-${row.id}`} name="identity">
+									<option value="team">فريق تحرير Arabs Startups</option>
+									{user.name && <option value="self">{user.name}</option>}
+								</select>
+								<button class="btn btn-primary btn-sm" type="submit">نشر الردّ</button>
+							</div>
+						</form>
+					)}
+				</li>
+			))}
+		</ol>
+	)}
+</Newsroom>

@@ -1,0 +1,7 @@
+---
+import ContactView from "../../views/ContactView.astro";
+
+const preset = Astro.url.searchParams.get("type") ?? undefined;
+---
+
+<ContactView locale="en" preset={preset} />

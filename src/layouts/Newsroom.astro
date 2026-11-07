@@ -1,0 +1,69 @@
+---
+/** Staff newsroom layout (Arabic, RTL, never indexed, never cached). */
+import "../styles/global.css";
+import "../styles/newsroom.css";
+import { Font } from "astro:assets";
+import Logo from "../components/Logo.astro";
+import { isProduction } from "../lib/runtime";
+import type { StaffUser } from "../lib/staff/guard";
+import { can, roleLabel } from "../lib/staff/roles";
+
+interface Props {
+	title: string;
+	user: StaffUser;
+}
+const { title, user } = Astro.props;
+Astro.response.headers.set("Cache-Control", "private, no-store");
+Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow");
+const path = Astro.url.pathname;
+const nav = [
+	{ href: "/newsroom", label: "لوحة الفريق", show: true, exact: true },
+	{ href: "/newsroom/inbox", label: "صندوق الرسائل", show: can(user, "inbox:read") },
+	{ href: "/newsroom/comments", label: "التعليقات", show: can(user, "comments:moderate") },
+	{ href: "/newsroom/audit", label: "سجلّ التدقيق", show: can(user, "audit:read") },
+	{ href: "/newsroom/team", label: "الفريق والصلاحيات", show: can(user, "team:read") },
+].filter((item) => item.show);
+const signOut = isProduction ? "/cdn-cgi/access/logout" : "/";
+---
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="robots" content="noindex, nofollow" />
+		<title>{title} — غرفة الأخبار</title>
+		<Font cssVariable="--font-ar" />
+		<Font cssVariable="--font-latin" />
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+	</head>
+	<body class="nr">
+		<header class="nr-header">
+			<div class="container nr-header-inner">
+				<a href="/newsroom" class="nr-brand" aria-label="غرفة الأخبار"><Logo /> <span>غرفة الأخبار</span></a>
+				<nav class="nr-nav" aria-label="تنقّل غرفة الأخبار">
+					{
+						nav.map((item) => {
+							const active = item.exact ? path === item.href : path.startsWith(item.href);
+							return (
+								<a href={item.href} aria-current={active ? "page" : undefined}>
+									{item.label}
+								</a>
+							);
+						})
+					}
+					<a href="/_emdash/admin">لوحة المحتوى ↗</a>
+				</nav>
+				<div class="nr-user">
+					<span>{user.name ?? user.email}</span>
+					<span class="badge">{roleLabel(user.role)}</span>
+					<a href={signOut}>تسجيل الخروج</a>
+				</div>
+			</div>
+		</header>
+		<main id="main" class="container nr-main">
+			<h1>{title}</h1>
+			<slot />
+		</main>
+	</body>
+</html>

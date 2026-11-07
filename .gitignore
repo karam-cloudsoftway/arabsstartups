@@ -1,0 +1,37 @@
+# build output
+dist/
+.astro/
+.wrangler/
+.emdash/migrations.json
+
+# dependencies
+node_modules/
+
+# local data
+uploads/
+data.db
+data.db-*
+
+# secrets — never commit (plan §8.6)
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+
+# test output
+test-results/
+playwright-report/
+coverage/
+
+# os / editor
+.DS_Store
+*.log
+npm-debug.log*
+
+# local dev server helper
+.dev-server.pid
+.dev-server.log
+
+# local database exports (contain personal data)
+backups/

@@ -1,0 +1,98 @@
+---
+import { PortableText } from "emdash/ui";
+import EmbedPlayer from "../components/EmbedPlayer.astro";
+import Base from "../layouts/Base.astro";
+import { formatDate, isoDate, t, type Locale } from "../i18n";
+import { entrySlug, type EntryLike } from "../lib/content/queries";
+
+interface Props {
+	entry: EntryLike;
+	locale: Locale;
+	isPreview: boolean;
+	alternate: string | false;
+}
+const { entry, locale, isPreview, alternate } = Astro.props;
+const dict = t(locale);
+const data = entry.data;
+const title = String(data.title ?? "");
+const type = String(data.episode_type ?? "webinar") as "webinar" | "podcast" | "video";
+const recorded = (data.recorded_at as Date | string | null | undefined) ?? null;
+const transcript = Array.isArray(data.transcript) && data.transcript.length > 0 ? data.transcript : null;
+---
+
+<Base
+	title={title}
+	description={String(data.excerpt ?? dict.episodes.intro)}
+	locale={locale}
+	type="article"
+	content={{ collection: "episodes", id: data.id, slug: entrySlug(entry) }}
+	noindex={isPreview}
+	alternate={alternate}
+>
+	<article class="section">
+		<div class="container narrow">
+			<span class="slash-tag">{dict.episodes[type]}</span>
+			<h1 class="title">{title}</h1>
+			{data.excerpt && <p class="lead">{String(data.excerpt)}</p>}
+			<dl class="facts">
+				{
+					data.guests && (
+						<div>
+							<dt>{dict.episodes.guests}</dt>
+							<dd>{String(data.guests)}</dd>
+						</div>
+					)
+				}
+				{
+					recorded && (
+						<div>
+							<dt>{dict.episodes.recorded}</dt>
+							<dd>
+								<time datetime={isoDate(recorded)}>{formatDate(recorded, locale)}</time>
+							</dd>
+						</div>
+					)
+				}
+			</dl>
+			{
+				typeof data.media_url === "string" && (
+					<EmbedPlayer url={data.media_url} title={title} linkLabel={dict.episodes.watchOn} />
+				)
+			}
+			{
+				transcript && (
+					<section class="transcript">
+						<h2>{dict.episodes.transcript}</h2>
+						<div class="prose">
+							<PortableText value={transcript as never} />
+						</div>
+					</section>
+				)
+			}
+		</div>
+	</article>
+</Base>
+
+<style>
+	.title {
+		font-size: var(--fs-h1);
+		margin-block: var(--space-sm) var(--space-md);
+	}
+	.facts {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-lg);
+		margin: var(--space-lg) 0;
+		font-size: var(--fs-small);
+	}
+	.facts dt {
+		color: var(--muted-fg);
+	}
+	.facts dd {
+		margin: 0;
+		font-weight: 600;
+	}
+	.transcript {
+		margin-block-start: var(--space-2xl);
+	}
+</style>

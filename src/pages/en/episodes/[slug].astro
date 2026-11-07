@@ -1,0 +1,11 @@
+---
+import EpisodeView from "../../../views/EpisodeView.astro";
+import { loadLocalized } from "../../../lib/content/routes";
+
+const result = await loadLocalized("episodes", Astro.params.slug, "en", (slug) => `/episodes/${slug}`);
+if (result.kind === "redirect") return Astro.redirect(result.location, 302);
+if (result.kind === "not-found") return Astro.rewrite("/en/404");
+if (result.isPreview) Astro.response.headers.set("Cache-Control", "private, no-store");
+---
+
+<EpisodeView entry={result.entry} locale="en" isPreview={result.isPreview} alternate={result.alternate} />

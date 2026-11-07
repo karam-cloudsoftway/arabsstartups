@@ -1,0 +1,92 @@
+---
+import Turnstile from "./Turnstile.astro";
+import { localePath, t, type Locale } from "../i18n";
+import { INQUIRY_CATEGORIES } from "../lib/inbox/validation";
+
+interface Props {
+	locale: Locale;
+	preset?: string;
+}
+const { locale, preset = "general" } = Astro.props;
+const dict = t(locale);
+const initial = (INQUIRY_CATEGORIES as readonly string[]).includes(preset) ? preset : "general";
+---
+
+<form
+	class="form contact-form"
+	action="/api/contact"
+	method="post"
+	novalidate
+	data-as-form="contact"
+	data-messages={JSON.stringify(dict.errors)}
+	data-success-message={dict.contact.success}
+	data-sending-label={dict.contact.sending}
+>
+	<input type="hidden" name="locale" value={locale} />
+	<div class="field-row">
+		<div class="field">
+			<label for="f-name">{dict.contact.name}</label>
+			<input id="f-name" name="name" type="text" required minlength="2" maxlength="100" autocomplete="name" />
+			<p class="field-error" data-field-error="name" hidden></p>
+		</div>
+		<div class="field">
+			<label for="f-email">{dict.contact.email}</label>
+			<input id="f-email" name="email" type="email" required maxlength="254" dir="ltr" autocomplete="email" />
+			<p class="field-error" data-field-error="email" hidden></p>
+		</div>
+	</div>
+	<div class="field-row">
+		<div class="field">
+			<label for="f-category">{dict.contact.category}</label>
+			<select id="f-category" name="category" required>
+				{
+					INQUIRY_CATEGORIES.map((category) => (
+						<option value={category} selected={category === initial}>
+							{dict.contact.categories[category]}
+						</option>
+					))
+				}
+			</select>
+			<p class="field-error" data-field-error="category" hidden></p>
+		</div>
+		<div class="field">
+			<label for="f-subject">{dict.contact.subject}</label>
+			<input id="f-subject" name="subject" type="text" required minlength="3" maxlength="150" />
+			<p class="field-error" data-field-error="subject" hidden></p>
+		</div>
+	</div>
+	<div class="field">
+		<label for="f-message">{dict.contact.message}</label>
+		<textarea id="f-message" name="message" rows="7" required minlength="10" maxlength="5000"></textarea>
+		<p class="field-error" data-field-error="message" hidden></p>
+	</div>
+	<div class="field-row">
+		<div class="field">
+			<label for="f-org">{dict.contact.organization}</label>
+			<input id="f-org" name="organization" type="text" maxlength="150" autocomplete="organization" />
+			<p class="field-error" data-field-error="organization" hidden></p>
+		</div>
+		<div class="field">
+			<label for="f-site">{dict.contact.website}</label>
+			<input id="f-site" name="orgWebsite" type="url" maxlength="300" dir="ltr" placeholder="https://" autocomplete="url" />
+			<p class="field-error" data-field-error="orgWebsite" hidden></p>
+		</div>
+	</div>
+	<div class="hp-field" aria-hidden="true">
+		<label for="f-url">URL</label>
+		<input id="f-url" name="url" type="text" tabindex="-1" autocomplete="off" />
+	</div>
+	<Turnstile action="contact" locale={locale} />
+	<p class="help">
+		{dict.contact.privacy} <a href={localePath(locale, "/privacy")}>{dict.footer.privacy}</a>. {dict.contact.note}
+	</p>
+	<noscript><p class="notice">{dict.contact.noscript}</p></noscript>
+	<p class="form-status" data-form-status role="status" aria-live="polite" hidden></p>
+	<div>
+		<button type="submit" class="btn btn-primary">{dict.contact.submit}</button>
+	</div>
+</form>
+
+<script>
+	import "../scripts/forms.ts";
+</script>

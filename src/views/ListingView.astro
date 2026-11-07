@@ -1,0 +1,53 @@
+---
+import ArticleCard from "../components/ArticleCard.astro";
+import Base from "../layouts/Base.astro";
+import { t, type Locale } from "../i18n";
+import type { CardData } from "../lib/content/queries";
+
+interface Props {
+	locale: Locale;
+	tag: string;
+	title: string;
+	description: string;
+	cards: CardData[];
+	nextCursor?: string;
+	firstPage: boolean;
+	basePath: string;
+}
+const { locale, tag, title, description, cards, nextCursor, firstPage, basePath } = Astro.props;
+const dict = t(locale);
+const arrowNext = locale === "ar" ? "←" : "→";
+---
+
+<Base title={title} description={description} locale={locale} noindex={!firstPage}>
+	<section class="section">
+		<div class="container">
+			<header class="page-head">
+				<span class="slash-tag">{tag}</span>
+				<h1>{title}</h1>
+				<p class="lead">{description}</p>
+			</header>
+			{
+				cards.length > 0 ? (
+					<div class="grid-cards">
+						{cards.map((card) => <ArticleCard card={card} locale={locale} />)}
+					</div>
+				) : (
+					<p class="notice">{dict.listing.empty}</p>
+				)
+			}
+			{
+				(nextCursor || !firstPage) && (
+					<nav class="pager" aria-label="pagination">
+						{!firstPage ? <a href={basePath}>{dict.listing.newer}</a> : <span />}
+						{nextCursor && (
+							<a href={`${basePath}?cursor=${encodeURIComponent(nextCursor)}`} rel="next">
+								{dict.listing.older} <span aria-hidden="true">{arrowNext}</span>
+							</a>
+						)}
+					</nav>
+				)
+			}
+		</div>
+	</section>
+</Base>

@@ -1,0 +1,194 @@
+---
+/**
+ * Comments for one article: ONLY approved comments are rendered (server-side,
+ * plain text). Commenter emails never leave the server. Staff replies carry an
+ * "Editorial team" badge.
+ */
+import { getComments } from "emdash";
+import Turnstile from "./Turnstile.astro";
+import { formatDate, isoDate, localePath, t, type Locale } from "../i18n";
+
+interface Props {
+	contentId: string;
+	locale: Locale;
+	open: boolean;
+}
+const { contentId, locale, open } = Astro.props;
+const dict = t(locale);
+const { items, total } = await getComments({ collection: "posts", contentId, threaded: true });
+
+interface ShownComment {
+	id: string;
+	authorName: string;
+	isRegisteredUser: boolean;
+	body: string;
+	createdAt: string;
+	replies?: ShownComment[];
+}
+const comments = items as unknown as ShownComment[];
+---
+
+<section class="comments" aria-labelledby="comments-heading" id="comments">
+	<h2 id="comments-heading">{dict.comments.title} <span class="count">· {dict.comments.count(total)}</span></h2>
+
+	{
+		comments.length === 0 ? (
+			<p class="help">{dict.comments.none}</p>
+		) : (
+			<ol class="comment-list">
+				{comments.map((comment) => (
+					<li class="comment" id={`comment-${comment.id}`}>
+						<div class="comment-head">
+							<span class="comment-author">{comment.authorName}</span>
+							{comment.isRegisteredUser && <span class="badge badge-accent">{dict.comments.staffBadge}</span>}
+							<time datetime={isoDate(comment.createdAt)}>{formatDate(comment.createdAt, locale, true)}</time>
+						</div>
+						<p class="comment-body">{comment.body}</p>
+						{open && (
+							<button
+								type="button"
+								class="btn-link reply-btn"
+								data-reply-to={comment.id}
+								data-reply-author={comment.authorName}
+							>
+								{dict.comments.reply}
+							</button>
+						)}
+						{comment.replies && comment.replies.length > 0 && (
+							<ol class="comment-list replies">
+								{comment.replies.map((reply) => (
+									<li class="comment reply" id={`comment-${reply.id}`}>
+										<div class="comment-head">
+											<span class="comment-author">{reply.authorName}</span>
+											{reply.isRegisteredUser && (
+												<span class="badge badge-accent">{dict.comments.staffBadge}</span>
+											)}
+											<time datetime={isoDate(reply.createdAt)}>{formatDate(reply.createdAt, locale, true)}</time>
+										</div>
+										<p class="comment-body">{reply.body}</p>
+									</li>
+								))}
+							</ol>
+						)}
+					</li>
+				))}
+			</ol>
+		)
+	}
+
+	{
+		open ? (
+			<form
+				class="form comment-form"
+				action="/api/comments"
+				method="post"
+				novalidate
+				data-as-form="comment"
+				data-messages={JSON.stringify(dict.errors)}
+				data-success-message={dict.comments.pending}
+				data-sending-label={dict.comments.sending}
+			>
+				<h3>{dict.comments.leave}</h3>
+				<input type="hidden" name="contentId" value={contentId} />
+				<input type="hidden" name="parentId" value="" />
+				<input type="hidden" name="locale" value={locale} />
+				<p class="reply-banner notice" data-reply-banner hidden>
+					{dict.comments.replyTo} <strong data-reply-name></strong>
+					<button type="button" class="btn-link" data-reply-cancel>
+						{dict.comments.cancelReply}
+					</button>
+				</p>
+				<div class="field-row">
+					<div class="field">
+						<label for="c-name">{dict.comments.name}</label>
+						<input id="c-name" name="authorName" type="text" required minlength="2" maxlength="60" autocomplete="name" />
+						<p class="field-error" data-field-error="authorName" hidden />
+					</div>
+					<div class="field">
+						<label for="c-email">{dict.comments.email}</label>
+						<input id="c-email" name="authorEmail" type="email" required maxlength="254" dir="ltr" autocomplete="email" aria-describedby="c-email-help" />
+						<p class="help" id="c-email-help">{dict.comments.emailNote}</p>
+						<p class="field-error" data-field-error="authorEmail" hidden />
+					</div>
+				</div>
+				<div class="field">
+					<label for="c-body">{dict.comments.body}</label>
+					<textarea id="c-body" name="body" required minlength="3" maxlength="2000" rows="5" aria-describedby="c-body-help" />
+					<p class="help" id="c-body-help">{dict.comments.bodyHelp}</p>
+					<p class="field-error" data-field-error="body" hidden />
+				</div>
+				<div class="hp-field" aria-hidden="true">
+					<label for="c-url">URL</label>
+					<input id="c-url" name="url" type="text" tabindex="-1" autocomplete="off" />
+				</div>
+				<Turnstile action="comment" locale={locale} />
+				<p class="help">
+					{dict.comments.policyNote} <a href={localePath(locale, "/comment-policy")}>{dict.comments.policyLink}</a> ·{" "}
+					<a href={localePath(locale, "/privacy")}>{dict.comments.privacyLink}</a>
+				</p>
+				<noscript>
+					<p class="notice">{dict.comments.noscript}</p>
+				</noscript>
+				<p class="form-status" data-form-status role="status" aria-live="polite" hidden />
+				<div>
+					<button type="submit" class="btn btn-primary">{dict.comments.submit}</button>
+				</div>
+			</form>
+		) : (
+			<p class="notice">{dict.comments.closed}</p>
+		)
+	}
+</section>
+
+<script>
+	import "../scripts/forms.ts";
+</script>
+
+<style>
+	.comments {
+		margin-block-start: var(--space-3xl);
+		border-block-start: 2px solid var(--fg);
+		padding-block-start: var(--space-lg);
+	}
+	.count {
+		color: var(--muted-fg);
+		font-weight: 500;
+		font-size: 0.8em;
+	}
+	.comment-list {
+		list-style: none;
+		margin: 0 0 var(--space-xl);
+		padding: 0;
+		display: grid;
+		gap: var(--space-lg);
+	}
+	.replies {
+		margin-block: var(--space-md) 0;
+		padding-inline-start: var(--space-lg);
+		border-inline-start: 2px solid var(--border);
+	}
+	.comment-head {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-sm);
+		align-items: center;
+		font-size: var(--fs-small);
+		color: var(--muted-fg);
+	}
+	.comment-author {
+		font-weight: 700;
+		color: var(--fg);
+	}
+	.comment-body {
+		white-space: pre-line;
+		overflow-wrap: anywhere;
+		margin-block: var(--space-sm);
+	}
+	.reply-btn {
+		font-size: var(--fs-small);
+		min-height: 44px;
+	}
+	.comment-form {
+		margin-block-start: var(--space-xl);
+	}
+</style>

@@ -1,0 +1,42 @@
+---
+/**
+ * Cloudflare Turnstile widget. The token it produces is verified on the
+ * server (src/lib/security/turnstile.ts) — the widget alone proves nothing.
+ */
+import { getConfig } from "../lib/config";
+import type { Locale } from "../i18n";
+
+interface Props {
+	action: "comment" | "contact";
+	locale: Locale;
+}
+const { action, locale } = Astro.props;
+const siteKey = getConfig().turnstileSiteKey;
+---
+
+{
+	siteKey ? (
+		<>
+			<div
+				class="cf-turnstile turnstile-box"
+				data-sitekey={siteKey}
+				data-action={action}
+				data-language={locale}
+				data-theme="auto"
+				data-size="flexible"
+				data-response-field-name="cf-turnstile-response"
+			/>
+			<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
+		</>
+	) : (
+		<p class="notice" role="alert">
+			{locale === "ar" ? "النموذج غير متاح مؤقتًا." : "This form is temporarily unavailable."}
+		</p>
+	)
+}
+
+<style>
+	.turnstile-box {
+		min-height: 65px;
+	}
+</style>

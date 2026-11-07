@@ -1,0 +1,155 @@
+---
+import Logo from "./Logo.astro";
+import { localePath, t, type Locale } from "../i18n";
+
+interface Props {
+	locale: Locale;
+	showEpisodes: boolean;
+	alternate: string | null;
+}
+const { locale, showEpisodes, alternate } = Astro.props;
+const dict = t(locale);
+
+// Lean navigation; channels without published content are hidden.
+const items = [
+	{ href: localePath(locale, "/"), label: dict.nav.home, exact: true },
+	{ href: localePath(locale, "/news"), label: dict.nav.news },
+	{ href: localePath(locale, "/stories"), label: dict.nav.stories },
+	...(showEpisodes ? [{ href: localePath(locale, "/episodes"), label: dict.nav.episodes }] : []),
+	{ href: localePath(locale, "/about"), label: dict.nav.about },
+	{ href: localePath(locale, "/contact"), label: dict.nav.contact },
+];
+
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const isActive = (href: string, exact?: boolean) =>
+	exact ? path === href : path === href || path.startsWith(`${href}/`);
+---
+
+<header class="site-header">
+	<div class="container header-inner">
+		<a href={localePath(locale, "/")} class="logo-link" aria-label={`${dict.siteName} — ${dict.nav.home}`}>
+			<Logo variant="wordmark" />
+		</a>
+
+		<nav class="site-nav" aria-label={dict.nav.label}>
+			{
+				items.map((item) => (
+					<a
+						href={item.href}
+						class:list={["nav-link", { active: isActive(item.href, item.exact) }]}
+						aria-current={isActive(item.href, item.exact) ? "page" : undefined}
+					>
+						{item.label}
+					</a>
+				))
+			}
+		</nav>
+
+		<div class="header-actions">
+			<a href={localePath(locale, "/search")} class="icon-link" aria-label={dict.nav.search}>
+				<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+					<circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"></circle>
+					<path d="m20 20-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+				</svg>
+			</a>
+			{
+				alternate && (
+					<a
+						href={alternate}
+						class="lang-link"
+						hreflang={locale === "ar" ? "en" : "ar"}
+						lang={locale === "ar" ? "en" : "ar"}
+					>
+						{dict.nav.otherLanguage}
+					</a>
+				)
+			}
+			<a href={localePath(locale, "/contact")} class="btn btn-primary cta">{dict.nav.submit}</a>
+		</div>
+	</div>
+</header>
+
+<style>
+	.site-header {
+		position: sticky;
+		inset-block-start: 0;
+		z-index: 50;
+		background: color-mix(in srgb, var(--bg) 92%, transparent);
+		backdrop-filter: saturate(140%) blur(8px);
+		border-block-end: 1px solid var(--border);
+	}
+	.header-inner {
+		display: flex;
+		align-items: center;
+		gap: var(--space-lg);
+		flex-wrap: wrap;
+		padding-block: var(--space-md);
+	}
+	.logo-link {
+		text-decoration: none;
+		display: inline-flex;
+	}
+	.site-nav {
+		display: flex;
+		gap: var(--space-lg);
+		flex: 1 1 auto;
+		flex-wrap: wrap;
+	}
+	.nav-link {
+		color: var(--fg);
+		text-decoration: none;
+		white-space: nowrap;
+		font-weight: 600;
+		font-size: 0.95rem;
+		padding-block: 2px;
+		border-block-end: 2px solid transparent;
+		transition: color var(--t-base) var(--ease), border-color var(--t-base) var(--ease);
+	}
+	.nav-link:hover {
+		color: var(--accent);
+	}
+	.nav-link.active {
+		border-block-end-color: var(--accent);
+	}
+	.header-actions {
+		display: flex;
+		align-items: center;
+		gap: var(--space-md);
+	}
+	.icon-link,
+	.lang-link {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 44px;
+		min-height: 44px;
+		color: var(--fg);
+		font-weight: 700;
+		font-size: var(--fs-small);
+		text-decoration: none;
+	}
+	.icon-link:hover,
+	.lang-link:hover {
+		color: var(--accent);
+	}
+	.cta {
+		font-size: 0.9rem;
+		padding-inline: var(--space-md);
+	}
+	@media (max-width: 760px) {
+		.site-nav {
+			order: 4;
+			flex-basis: 100%;
+			gap: var(--space-md);
+			overflow-x: auto;
+			flex-wrap: nowrap;
+			padding-block-end: var(--space-xs);
+		}
+		.header-actions {
+			margin-inline-start: auto;
+		}
+		.cta {
+			display: none;
+		}
+	}
+</style>

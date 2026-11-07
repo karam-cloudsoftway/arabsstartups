@@ -1,0 +1,8 @@
+---
+import ListingView from "../views/ListingView.astro";
+import { loadSection } from "../lib/content/listing";
+
+const data = await loadSection("news", "ar", Astro.url);
+---
+
+<ListingView locale="ar" {...data} />

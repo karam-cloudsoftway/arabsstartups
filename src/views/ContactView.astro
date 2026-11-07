@@ -1,0 +1,28 @@
+---
+import ContactForm from "../components/ContactForm.astro";
+import Base from "../layouts/Base.astro";
+import { localePath, t, type Locale } from "../i18n";
+
+interface Props {
+	locale: Locale;
+	preset?: string;
+}
+const { locale, preset } = Astro.props;
+const dict = t(locale);
+---
+
+<Base title={dict.nav.contact} description={dict.contact.intro} locale={locale}>
+	<section class="section">
+		<div class="container narrow">
+			<header class="page-head">
+				<span class="slash-tag">{dict.nav.contact}</span>
+				<h1>{dict.contact.title}</h1>
+				<p class="lead">{dict.contact.intro}</p>
+				<p class="help">
+					<a href={localePath(locale, "/submit-news")}>{dict.contact.submitGuide}</a>
+				</p>
+			</header>
+			<ContactForm locale={locale} preset={preset} />
+		</div>
+	</section>
+</Base>

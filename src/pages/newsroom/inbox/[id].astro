@@ -1,0 +1,218 @@
+---
+import Newsroom from "../../../layouts/Newsroom.astro";
+import { formatDate, t } from "../../../i18n";
+import { writeAudit } from "../../../lib/audit/log";
+import { getConfig } from "../../../lib/config";
+import { inquiryReplySubject, inquiryReplyText } from "../../../lib/email/templates";
+import { isEmailConfigured, sendEmail } from "../../../lib/email/send";
+import { STATUS_LABELS } from "../../../lib/inbox/labels";
+import { addNote, assign, deleteInquiry, getInquiry, listNotes, markRead, setStatus } from "../../../lib/inbox/repo";
+import { INQUIRY_STATUSES, type InquiryStatus } from "../../../lib/inbox/validation";
+import { normalizeMultiline } from "../../../lib/security/text";
+import { getDb, mailSettings, requireStaff } from "../../../lib/runtime";
+import { denyResponse } from "../../../lib/staff/deny";
+import { field, flashFrom, readStaffForm } from "../../../lib/staff/forms";
+import { listStaff } from "../../../lib/staff/guard";
+import { can, ROLE } from "../../../lib/staff/roles";
+
+export const prerender = false;
+
+const decision = await requireStaff(Astro, "inbox:read");
+if (!decision.ok) return denyResponse(decision);
+const { user } = decision;
+const db = await getDb();
+const id = String(Astro.params.id ?? "");
+const self = `/newsroom/inbox/${encodeURIComponent(id)}`;
+const inquiry = /^[0-9a-f-]{36}$/.test(id) ? await getInquiry(db, id) : null;
+if (!inquiry) return Astro.rewrite("/404");
+
+const actor = { actorId: user.id, actorEmail: user.email, targetType: "inquiry", targetId: inquiry.id };
+
+if (Astro.request.method === "POST") {
+	const form = await readStaffForm(Astro.request, Astro.url.origin);
+	if (!form) return Astro.redirect(`${self}?err=invalid`, 303);
+	const action = field(form, "action", 20);
+
+	if (action === "status") {
+		const status = field(form, "status", 20) as InquiryStatus;
+		if (!INQUIRY_STATUSES.includes(status)) return Astro.redirect(`${self}?err=invalid`, 303);
+		await setStatus(db, inquiry.id, status);
+		await writeAudit(db, { ...actor, action: "inquiry.status", detail: { from: inquiry.status, to: status } });
+		return Astro.redirect(`${self}?ok=status`, 303);
+	}
+
+	if (action === "assign") {
+		const editorId = field(form, "editorId", 64);
+		if (editorId) {
+			const editors = await listStaff(db, ROLE.EDITOR);
+			if (!editors.some((editor) => editor.id === editorId && !editor.disabled)) {
+				return Astro.redirect(`${self}?err=invalid`, 303);
+			}
+		}
+		await assign(db, inquiry.id, editorId || null);
+		await writeAudit(db, { ...actor, action: "inquiry.assign", detail: { to: editorId || null } });
+		return Astro.redirect(`${self}?ok=assigned`, 303);
+	}
+
+	if (action === "note") {
+		const body = normalizeMultiline(field(form, "body", 5000));
+		if (body.length < 1) return Astro.redirect(`${self}?err=invalid`, 303);
+		await addNote(db, { inquiryId: inquiry.id, kind: "note", authorId: user.id, authorName: user.name ?? user.email, body });
+		await writeAudit(db, { ...actor, action: "inquiry.note", detail: { length: body.length } });
+		return Astro.redirect(`${self}?ok=note`, 303);
+	}
+
+	if (action === "reply") {
+		if (!can(user, "inbox:manage")) return Astro.redirect(`${self}?err=forbidden`, 303);
+		const body = normalizeMultiline(field(form, "body", 10_000));
+		if (body.length < 2) return Astro.redirect(`${self}?err=invalid`, 303);
+		const mail = mailSettings();
+		if (!isEmailConfigured(mail)) return Astro.redirect(`${self}?err=email_not_configured`, 303);
+		const config = getConfig();
+		const signature = inquiry.locale === "en" ? "Arabs Startups Editorial Team" : "فريق تحرير Arabs Startups";
+		const result = await sendEmail(db, mail, {
+			to: inquiry.email,
+			subject: inquiryReplySubject(inquiry.subject),
+			text: inquiryReplyText({
+				reply: body,
+				signature,
+				originalSubject: inquiry.subject,
+				originalMessage: inquiry.message,
+				locale: inquiry.locale,
+			}),
+			replyTo: config.mailReplyTo || undefined,
+		});
+		if (!result.ok) {
+			await writeAudit(db, { ...actor, action: "inquiry.reply", detail: { sent: false, reason: result.reason } });
+			return Astro.redirect(`${self}?err=${result.reason === "not_configured" ? "email_not_configured" : "email_failed"}`, 303);
+		}
+		await addNote(db, {
+			inquiryId: inquiry.id,
+			kind: "reply",
+			authorId: user.id,
+			authorName: user.name ?? user.email,
+			body,
+			providerMessageId: result.providerId,
+		});
+		await writeAudit(db, { ...actor, action: "inquiry.reply", detail: { sent: true, provider: result.providerId.split(":")[0] ?? "" } });
+		return Astro.redirect(`${self}?ok=replied`, 303);
+	}
+
+	if (action === "delete") {
+		if (!can(user, "inbox:delete")) return Astro.redirect(`${self}?err=forbidden`, 303);
+		if (field(form, "confirm", 10) !== "yes") return Astro.redirect(`${self}?err=invalid`, 303);
+		await deleteInquiry(db, inquiry.id);
+		await writeAudit(db, { ...actor, action: "inquiry.delete", detail: { category: inquiry.category } });
+		return Astro.redirect("/newsroom/inbox?ok=deleted", 303);
+	}
+
+	return Astro.redirect(`${self}?err=invalid`, 303);
+}
+
+if (inquiry.is_read === 0) await markRead(db, inquiry.id);
+const notes = await listNotes(db, inquiry.id);
+const editors = (await listStaff(db, ROLE.EDITOR)).filter((editor) => !editor.disabled);
+const flash = flashFrom(Astro.url);
+const dict = t("ar");
+const emailReady = isEmailConfigured(mailSettings());
+---
+
+<Newsroom title={inquiry.subject} user={user}>
+	<p><a href="/newsroom/inbox">← صندوق الرسائل</a></p>
+	{flash && <p class="notice flash" role="status">{flash.text}</p>}
+
+	<section class="panel">
+		<dl class="kv">
+			<dt>المرسل</dt><dd>{inquiry.name}</dd>
+			<dt>البريد</dt><dd class="ltr">{inquiry.email}</dd>
+			<dt>النوع</dt><dd>{dict.contact.categories[inquiry.category]}</dd>
+			{inquiry.organization && (<><dt>المؤسّسة</dt><dd>{inquiry.organization}</dd></>)}
+			{inquiry.website && (<><dt>الموقع</dt><dd class="ltr">{inquiry.website}</dd></>)}
+			<dt>التاريخ</dt><dd><time datetime={inquiry.created_at}>{formatDate(inquiry.created_at, "ar", true)}</time></dd>
+			<dt>الحالة</dt><dd><span class="badge">{STATUS_LABELS[inquiry.status]}</span></dd>
+			<dt>يُحذف تلقائيًا</dt><dd><time datetime={inquiry.retention_due_at}>{formatDate(inquiry.retention_due_at, "ar")}</time></dd>
+		</dl>
+	</section>
+
+	<h2>الرسالة</h2>
+	<div class="message-body" data-testid="inquiry-message">{inquiry.message}</div>
+
+	<section class="panel" style="margin-block-start: var(--space-lg)">
+		<h2>الإجراءات</h2>
+		<div class="actions">
+			<form method="post" class="inline-form">
+				<input type="hidden" name="action" value="status" />
+				<label for="status">الحالة</label>
+				<select id="status" name="status">
+					{INQUIRY_STATUSES.map((s) => <option value={s} selected={inquiry.status === s}>{STATUS_LABELS[s]}</option>)}
+				</select>
+				<button class="btn btn-secondary btn-sm" type="submit">تحديث الحالة</button>
+			</form>
+			<form method="post" class="inline-form">
+				<input type="hidden" name="action" value="assign" />
+				<label for="editorId">المسؤول</label>
+				<select id="editorId" name="editorId">
+					<option value="">— بلا إسناد —</option>
+					{editors.map((editor) => <option value={editor.id} selected={inquiry.assigned_editor_id === editor.id}>{editor.name ?? editor.email}</option>)}
+				</select>
+				<button class="btn btn-secondary btn-sm" type="submit">إسناد</button>
+			</form>
+		</div>
+	</section>
+
+	<section class="panel">
+		<h2>سجلّ المتابعة</h2>
+		{notes.length === 0 ? <p class="help">لا ملاحظات ولا ردود بعد.</p> : (
+			<ol class="thread">
+				{notes.map((note) => (
+					<li class:list={{ reply: note.kind === "reply" }}>
+						<strong>{note.kind === "reply" ? "ردّ بالبريد" : "ملاحظة داخلية"}</strong> · {note.author_name} ·{" "}
+						<time datetime={note.created_at}>{formatDate(note.created_at, "ar", true)}</time>
+						<p class="body">{note.body}</p>
+					</li>
+				))}
+			</ol>
+		)}
+	</section>
+
+	<section class="panel">
+		<h2>ملاحظة داخلية</h2>
+		<p class="help">لا تظهر للمرسل أبدًا ولا تُضمَّن في أي بريد.</p>
+		<form method="post" class="form">
+			<input type="hidden" name="action" value="note" />
+			<div class="field">
+				<label for="note-body">الملاحظة</label>
+				<textarea id="note-body" name="body" rows="3" maxlength="5000" required></textarea>
+			</div>
+			<div><button class="btn btn-secondary btn-sm" type="submit">حفظ الملاحظة</button></div>
+		</form>
+	</section>
+
+	<section class="panel">
+		<h2>الردّ بالبريد</h2>
+		{!emailReady && <p class="notice">البريد الصادر غير مُعدّ؛ لا يمكن إرسال الردود الآن.</p>}
+		<p class="help">يُرسل إلى <span class="ltr">{inquiry.email}</span> مع اقتباس الرسالة الأصلية فقط، دون الملاحظات الداخلية.</p>
+		<form method="post" class="form">
+			<input type="hidden" name="action" value="reply" />
+			<div class="field">
+				<label for="reply-body">نصّ الردّ</label>
+				<textarea id="reply-body" name="body" rows="6" maxlength="10000" required></textarea>
+			</div>
+			<div><button class="btn btn-primary btn-sm" type="submit" disabled={!emailReady}>إرسال الردّ</button></div>
+		</form>
+	</section>
+
+	{
+		can(user, "inbox:delete") && (
+			<section class="panel">
+				<h2>حذف نهائي</h2>
+				<p class="help">يحذف الرسالة وكل ملاحظاتها نهائيًا (مثلًا عند طلب المرسل حذف بياناته). لا يمكن التراجع.</p>
+				<form method="post" class="inline-form">
+					<input type="hidden" name="action" value="delete" />
+					<label><input type="checkbox" name="confirm" value="yes" required /> أؤكّد الحذف النهائي</label>
+					<button class="btn btn-danger btn-sm" type="submit">حذف</button>
+				</form>
+			</section>
+		)
+	}
+</Newsroom>

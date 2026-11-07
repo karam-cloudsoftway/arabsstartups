@@ -1,0 +1,66 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	// Top level = LOCAL DEVELOPMENT only (`npm run dev`). Real deployments use
+	// a named environment: `--env staging` or `--env production`. Each one has
+	// its OWN database, bucket and secrets. Never share data between them.
+	"name": "arabsstartups-local",
+	"main": "./src/worker.ts",
+	"compatibility_date": "2026-02-24",
+	"compatibility_flags": ["nodejs_compat"],
+	"workers_dev": false,
+	"d1_databases": [{ "binding": "DB", "database_name": "arabsstartups-local" }],
+	"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "arabsstartups-media-local" }],
+	"triggers": { "crons": ["* * * * *"] },
+	"vars": {
+		"INQUIRY_RETENTION_DAYS": "365",
+	},
+	"env": {
+		"staging": {
+			"name": "arabsstartups-staging",
+			"workers_dev": true,
+			"observability": { "enabled": true },
+			"d1_databases": [{ "binding": "DB", "database_name": "arabsstartups-staging" }],
+			"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "arabsstartups-media-staging" }],
+			"triggers": { "crons": ["* * * * *"] },
+			// Secrets (wrangler secret put <NAME> --env staging):
+			//   EMDASH_ENCRYPTION_KEY, CF_ACCESS_AUDIENCE, TURNSTILE_SECRET_KEY, RESEND_API_KEY
+			"vars": {
+				"EMDASH_SITE_URL": "https://arabsstartups-staging.CHANGE-ME.workers.dev",
+				"CF_ACCESS_TEAM_DOMAIN": "arabsstartups.cloudflareaccess.com",
+				"PUBLIC_TURNSTILE_SITE_KEY": "CHANGE-ME",
+				"TURNSTILE_ALLOWED_HOSTNAMES": "arabsstartups-staging.CHANGE-ME.workers.dev",
+				"MAIL_FROM": "Arabs Startups Staging <hello@arabsstartups.com>",
+				"MAIL_REPLY_TO": "hello@arabsstartups.com",
+				"EDITORIAL_ALERT_EMAIL": "",
+				"INQUIRY_RETENTION_DAYS": "30",
+				"PUBLIC_CF_BEACON_TOKEN": "",
+			},
+		},
+		"production": {
+			"name": "arabsstartups",
+			"workers_dev": false,
+			"observability": { "enabled": true },
+			"d1_databases": [{ "binding": "DB", "database_name": "arabsstartups-prod" }],
+			// Public media only. Backups go to a SEPARATE private bucket (see docs/BACKUP_RESTORE.md).
+			"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "arabsstartups-media-prod" }],
+			"triggers": { "crons": ["* * * * *"] },
+			"routes": [
+				{ "pattern": "arabsstartups.com", "custom_domain": true },
+				{ "pattern": "www.arabsstartups.com", "custom_domain": true },
+			],
+			// Secrets (wrangler secret put <NAME> --env production):
+			//   EMDASH_ENCRYPTION_KEY, CF_ACCESS_AUDIENCE, TURNSTILE_SECRET_KEY, RESEND_API_KEY
+			"vars": {
+				"EMDASH_SITE_URL": "https://arabsstartups.com",
+				"CF_ACCESS_TEAM_DOMAIN": "arabsstartups.cloudflareaccess.com",
+				"PUBLIC_TURNSTILE_SITE_KEY": "CHANGE-ME",
+				"TURNSTILE_ALLOWED_HOSTNAMES": "arabsstartups.com,www.arabsstartups.com",
+				"MAIL_FROM": "Arabs Startups <hello@arabsstartups.com>",
+				"MAIL_REPLY_TO": "hello@arabsstartups.com",
+				"EDITORIAL_ALERT_EMAIL": "",
+				"INQUIRY_RETENTION_DAYS": "365",
+				"PUBLIC_CF_BEACON_TOKEN": "",
+			},
+		},
+	},
+}

@@ -1,0 +1,2076 @@
+{
+	"$schema": "https://emdashcms.com/seed.schema.json",
+	"version": "1",
+	"meta": {
+		"name": "Arabs Startups",
+		"description": "Arabic-first startup and entrepreneurship media site.",
+		"author": "Arabs Startups"
+	},
+	"settings": {
+		"title": "Arabs Startups",
+		"tagline": "قصص الشركات الناشئة وروّاد الأعمال العرب"
+	},
+	"collections": [
+		{
+			"slug": "posts",
+			"label": "المقالات",
+			"labelSingular": "مقال",
+			"urlPattern": "/articles/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"scheduling",
+				"search",
+				"seo"
+			],
+			"commentsEnabled": true,
+			"sortOrder": 1,
+			"fields": [
+				{
+					"slug": "title",
+					"label": "العنوان",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "excerpt",
+					"label": "الملخّص",
+					"type": "text",
+					"searchable": true
+				},
+				{
+					"slug": "featured_image",
+					"label": "صورة الغلاف (مرخّصة فقط)",
+					"type": "image"
+				},
+				{
+					"slug": "content",
+					"label": "النص",
+					"type": "portableText",
+					"searchable": true
+				},
+				{
+					"slug": "content_label",
+					"label": "نوع المحتوى",
+					"type": "select",
+					"required": true,
+					"defaultValue": "news",
+					"translatable": false,
+					"validation": {
+						"options": [
+							"news",
+							"analysis",
+							"interview",
+							"opinion",
+							"partner",
+							"sponsored",
+							"press_release"
+						]
+					}
+				},
+				{
+					"slug": "editorial_status",
+					"label": "حالة المراجعة التحريرية",
+					"type": "select",
+					"defaultValue": "writing",
+					"translatable": false,
+					"validation": {
+						"options": [
+							"writing",
+							"in_review",
+							"approved"
+						]
+					}
+				},
+				{
+					"slug": "source_name",
+					"label": "اسم المصدر",
+					"type": "string"
+				},
+				{
+					"slug": "source_url",
+					"label": "رابط المصدر",
+					"type": "url"
+				},
+				{
+					"slug": "corrections",
+					"label": "التصحيحات (تظهر للقرّاء)",
+					"type": "text"
+				},
+				{
+					"slug": "sample_content",
+					"label": "محتوى نموذجي (يُستبدل قبل الإطلاق)",
+					"type": "boolean",
+					"defaultValue": false,
+					"translatable": false
+				}
+			]
+		},
+		{
+			"slug": "episodes",
+			"label": "الندوات والبودكاست",
+			"labelSingular": "حلقة",
+			"urlPattern": "/episodes/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"scheduling",
+				"search",
+				"seo"
+			],
+			"sortOrder": 2,
+			"fields": [
+				{
+					"slug": "title",
+					"label": "العنوان",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "excerpt",
+					"label": "الوصف",
+					"type": "text",
+					"searchable": true
+				},
+				{
+					"slug": "episode_type",
+					"label": "النوع",
+					"type": "select",
+					"required": true,
+					"defaultValue": "webinar",
+					"translatable": false,
+					"validation": {
+						"options": [
+							"webinar",
+							"podcast",
+							"video"
+						]
+					}
+				},
+				{
+					"slug": "recorded_at",
+					"label": "تاريخ التسجيل",
+					"type": "datetime"
+				},
+				{
+					"slug": "guests",
+					"label": "الضيوف (بموافقتهم)",
+					"type": "string",
+					"searchable": true
+				},
+				{
+					"slug": "media_url",
+					"label": "رابط الحلقة (YouTube / Spotify / LinkedIn …)",
+					"type": "url",
+					"required": true,
+					"translatable": false
+				},
+				{
+					"slug": "featured_image",
+					"label": "صورة (مرخّصة فقط)",
+					"type": "image"
+				},
+				{
+					"slug": "transcript",
+					"label": "النص المكتوب / الملاحظات",
+					"type": "portableText",
+					"searchable": true
+				}
+			]
+		},
+		{
+			"slug": "pages",
+			"label": "الصفحات",
+			"labelSingular": "صفحة",
+			"urlPattern": "/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"search",
+				"seo"
+			],
+			"sortOrder": 3,
+			"fields": [
+				{
+					"slug": "title",
+					"label": "العنوان",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "content",
+					"label": "النص",
+					"type": "portableText",
+					"searchable": true
+				}
+			]
+		}
+	],
+	"taxonomies": [
+		{
+			"id": "tax-category-ar",
+			"name": "category",
+			"label": "الأقسام",
+			"labelSingular": "قسم",
+			"hierarchical": true,
+			"collections": [
+				"posts"
+			],
+			"terms": [
+				{
+					"id": "cat-news",
+					"slug": "news",
+					"label": "الأخبار",
+					"locale": "ar"
+				},
+				{
+					"id": "cat-founders",
+					"slug": "founder-stories",
+					"label": "قصص المؤسّسين",
+					"locale": "ar"
+				},
+				{
+					"id": "cat-failure",
+					"slug": "lessons-from-failure",
+					"label": "دروس من الإخفاق",
+					"locale": "ar"
+				},
+				{
+					"id": "cat-women",
+					"slug": "women-in-entrepreneurship",
+					"label": "نساء في ريادة الأعمال",
+					"locale": "ar"
+				},
+				{
+					"id": "cat-opinion",
+					"slug": "opinion",
+					"label": "رأي",
+					"locale": "ar"
+				}
+			],
+			"locale": "ar"
+		},
+		{
+			"id": "tax-category-en",
+			"name": "category",
+			"label": "Sections",
+			"labelSingular": "Section",
+			"locale": "en",
+			"translationOf": "tax-category-ar",
+			"terms": [
+				{
+					"slug": "news",
+					"label": "News",
+					"locale": "en",
+					"translationOf": "cat-news"
+				},
+				{
+					"slug": "founder-stories",
+					"label": "Founder Stories",
+					"locale": "en",
+					"translationOf": "cat-founders"
+				},
+				{
+					"slug": "lessons-from-failure",
+					"label": "Lessons From Failure",
+					"locale": "en",
+					"translationOf": "cat-failure"
+				},
+				{
+					"slug": "women-in-entrepreneurship",
+					"label": "Women in Entrepreneurship",
+					"locale": "en",
+					"translationOf": "cat-women"
+				},
+				{
+					"slug": "opinion",
+					"label": "Opinion",
+					"locale": "en",
+					"translationOf": "cat-opinion"
+				}
+			]
+		},
+		{
+			"id": "tax-tag-ar",
+			"name": "tag",
+			"label": "الوسوم",
+			"labelSingular": "وسم",
+			"hierarchical": false,
+			"collections": [
+				"posts"
+			],
+			"terms": [
+				{
+					"id": "tag-about",
+					"slug": "about-us",
+					"label": "عن المنصّة",
+					"locale": "ar"
+				},
+				{
+					"id": "tag-founders",
+					"slug": "founders",
+					"label": "مؤسّسون",
+					"locale": "ar"
+				},
+				{
+					"id": "tag-process",
+					"slug": "editorial-process",
+					"label": "منهجيتنا",
+					"locale": "ar"
+				},
+				{
+					"id": "tag-contributors",
+					"slug": "contributors",
+					"label": "للمساهمين",
+					"locale": "ar"
+				}
+			],
+			"locale": "ar"
+		}
+	],
+	"bylines": [
+		{
+			"id": "byline-editorial",
+			"slug": "editorial-team",
+			"displayName": "فريق تحرير Arabs Startups"
+		}
+	],
+	"content": {
+		"posts": [
+			{
+				"id": "post-introducing",
+				"slug": "introducing-arabs-startups",
+				"status": "published",
+				"data": {
+					"title": "نبدأ من هنا: ما هي Arabs Startups؟",
+					"excerpt": "منصّة إعلامية تروي قصص الشركات الناشئة وروّاد الأعمال، تبدأ من سوريا وتتّسع نحو المنطقة العربية.",
+					"content_label": "news",
+					"sample_content": true,
+					"editorial_status": "approved",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k0",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1",
+									"text": "ريادة الأعمال ليست إعلانات تمويل لامعة فحسب. هي أيضًا التجارب والإخفاقات والقرارات الصعبة والأشخاص الذين يقفون خلف كل شركة. أُنشئت Arabs Startups لتوثيق هذه الصورة كاملةً.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k2",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3",
+									"text": "ماذا نغطّي",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k4",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k5",
+									"text": "نبدأ من منظومة الشركات الناشئة في سوريا: الشركات التي تُبنى، والمؤسّسون الذين يخوضون المخاطرة، والداعمون الذين يفتحون الأبواب، والبرامج التي تحوّل الأفكار إلى أعمال حقيقية.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k6",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k7",
+									"text": "الأخبار: إطلاقات ومحطات ومستجدّات تهمّ روّاد الأعمال.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k8",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k9",
+									"text": "قصص المؤسّسين: حوارات عن القرار والتحوّل والدرس المستفاد.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "ka",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "kb",
+									"text": "ندوات وبودكاست: جلسات وتسجيلات مع أهل الميدان، تُضاف تدريجيًا.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "kc",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "kd",
+									"text": "لمن نكتب",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "ke",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "kf",
+									"text": "للمؤسّسين، والطلبة الطامحين، والمستثمرين، وشركاء المنظومة، ولكل قارئ مهتمّ، لا لأصحاب رأس المال وحدهم.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-editorial"
+					}
+				],
+				"taxonomies": {
+					"category": [
+						"news"
+					],
+					"tag": [
+						"about-us"
+					]
+				},
+				"locale": "ar"
+			},
+			{
+				"id": "post-founder-stories",
+				"slug": "why-founder-stories-matter",
+				"status": "published",
+				"data": {
+					"title": "لماذا تهمّ قصص المؤسّسين؟",
+					"excerpt": "خلف كل شركة رحلة حقيقية. نستكشف نقاط التحوّل والخيارات الصعبة والدروس العملية وراء العناوين.",
+					"content_label": "analysis",
+					"sample_content": true,
+					"editorial_status": "approved",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "kg",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "kh",
+									"text": "العنوان يحكي النتيجة، أمّا القصة فتحكي الطريق. في هذا القسم نجلس مع المؤسّسين لنفهم كيف بدأت الفكرة، ولماذا اختاروا هذا الطريق، وما الذي تعلّموه حين لم تسر الأمور كما خطّطوا.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "ki",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "kj",
+									"text": "ما الذي نبحث عنه",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "kk",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "kl",
+									"text": "القرار الذي غيّر مسار الشركة.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "km",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "kn",
+									"text": "اللحظة التي كاد فيها كل شيء يتوقّف.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "ko",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "kp",
+									"text": "الدرس الذي لا تتعلّمه إلا بالتجربة.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "kq",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "kr",
+									"text": "نروي هذه القصص باحترام، لا بوصفها محتوى مثيرًا، بل بوصفها معرفة يستفيد منها الجيل التالي من روّاد الأعمال. نحصل على موافقة الضيوف ونراجع الوقائع قبل النشر.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-editorial"
+					}
+				],
+				"taxonomies": {
+					"category": [
+						"founder-stories"
+					],
+					"tag": [
+						"founders"
+					]
+				},
+				"locale": "ar"
+			},
+			{
+				"id": "post-questions",
+				"slug": "questions-we-ask-every-founder",
+				"status": "published",
+				"data": {
+					"title": "الأسئلة التي نطرحها على كل مؤسّس",
+					"excerpt": "نهجنا الشفاف في إعداد الحوارات: ماذا نسأل، ولماذا، وكيف نراجع ما يُنشر.",
+					"content_label": "analysis",
+					"sample_content": true,
+					"editorial_status": "approved",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "ks",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "kt",
+									"text": "نريد أن يعرف القارئ والضيف معًا كيف نعدّ حواراتنا. لذلك ننشر الأسئلة الأساسية التي ننطلق منها في كل حوار.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "ku",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "kv",
+									"text": "ما المشكلة التي رأيتها، ولماذا قرّرت أن تحلّها أنت؟",
+									"marks": []
+								}
+							],
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "kw",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "kx",
+									"text": "ما أصعب قرار اتخذته حتى الآن؟",
+									"marks": []
+								}
+							],
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "ky",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "kz",
+									"text": "ما التجربة التي لم تنجح، وماذا تعلّمت منها؟",
+									"marks": []
+								}
+							],
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k10",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k11",
+									"text": "ما النصيحة التي كنت تتمنّى سماعها في البداية؟",
+									"marks": []
+								}
+							],
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k12",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k13",
+									"text": "يراجع الضيف الاقتباسات المنسوبة إليه للتأكّد من دقّتها، ويبقى القرار التحريري لفريق Arabs Startups.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-editorial"
+					}
+				],
+				"taxonomies": {
+					"category": [
+						"founder-stories"
+					],
+					"tag": [
+						"founders",
+						"editorial-process"
+					]
+				},
+				"locale": "ar"
+			},
+			{
+				"id": "post-how-to-submit",
+				"slug": "how-to-send-us-your-story",
+				"status": "published",
+				"data": {
+					"title": "كيف تُرسل لنا خبرًا أو قصة؟",
+					"excerpt": "دليل مختصر لإرسال الأخبار وأفكار القصص ومقترحات التعاون، وما نتوقّعه من مصادر وتحقّق.",
+					"content_label": "news",
+					"sample_content": true,
+					"editorial_status": "approved",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k14",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k15",
+									"text": "نرحّب بالأخبار وأفكار القصص من المؤسّسين والمنظّمين وداعمي المنظومة. الإرسال لا يضمن النشر؛ تُراجَع كل المساهمات، ويجب توفير المصادر، ويُوضَّح المحتوى المدعوم بوضوح إن قُبل.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k16",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k17",
+									"text": "قبل أن تُرسل",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k18",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k19",
+									"text": "اذكر الوقائع الأساسية بإيجاز.",
+									"marks": []
+								}
+							],
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k1a",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1b",
+									"text": "أرفق المصادر أو جهة يمكن التحقّق منها.",
+									"marks": []
+								}
+							],
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k1c",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1d",
+									"text": "وضّح إن كان الخبر قابلًا للنشر الآن أو في موعد لاحق.",
+									"marks": []
+								}
+							],
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k1e",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1f",
+									"text": "استخدم صفحة «اتصل بنا» واختر نوع الطلب المناسب.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-editorial"
+					}
+				],
+				"taxonomies": {
+					"category": [
+						"news"
+					],
+					"tag": [
+						"contributors"
+					]
+				},
+				"locale": "ar"
+			},
+			{
+				"id": "post-introducing-en",
+				"slug": "introducing-arabs-startups",
+				"locale": "en",
+				"translationOf": "post-introducing",
+				"status": "published",
+				"data": {
+					"title": "Start here: what is Arabs Startups?",
+					"excerpt": "A media platform telling the stories of startups and founders, starting in Syria and growing across the Arab region.",
+					"content_label": "news",
+					"sample_content": true,
+					"editorial_status": "approved",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k1g",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1h",
+									"text": "Entrepreneurship is not only fundraising announcements and launch stories. It is also the experiments, setbacks, difficult decisions and determined people behind every company. Arabs Startups exists to document that complete picture.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k1i",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1j",
+									"text": "What we cover",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k1k",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1l",
+									"text": "We start with the Syrian startup ecosystem: the companies being built, the founders taking risks, the supporters opening doors, and the programs helping ideas become real businesses.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-editorial"
+					}
+				],
+				"taxonomies": {
+					"category": [
+						"news"
+					],
+					"tag": [
+						"about-us"
+					]
+				}
+			}
+		],
+		"pages": [
+			{
+				"id": "page-about",
+				"slug": "about",
+				"status": "published",
+				"data": {
+					"title": "من نحن",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k1m",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1n",
+									"text": "ريادة الأعمال ليست إعلانات التمويل اللامعة وحدها. هي أيضًا التجارب والإخفاقات والقرارات الصعبة والشراكات والأشخاص الذين يقفون خلف كل شركة. أُنشئت Arabs Startups لتوثيق هذه الصورة كاملةً.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k1o",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1p",
+									"text": "تبدأ تغطيتنا من منظومة الشركات الناشئة في سوريا: الشركات التي تُبنى، والمؤسّسون الذين يخوضون المخاطرة، والمستثمرون والداعمون الذين يفتحون الأبواب، والبرامج التي تحوّل الأفكار إلى أعمال حقيقية. ومن خلال الأخبار والمقالات والحوارات والندوات والبودكاست، نحوّل المعلومات المتناثرة إلى مصدر إعلامي مفيد.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k1q",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1r",
+									"text": "نؤمن بالتغطية العملية، والمصادر الشفافة، وتعدّد وجهات النظر، وإتاحة المجال للمؤسّسين كي يرووا تجربتهم بأصواتهم. نبني الثقة مع الوقت عبر الاستمرارية والفضول والإنصاف، أيًّا كانت الحاضنة أو المسرّعة أو الجهة المعنيّة.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k1s",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1t",
+									"text": "رسالتنا",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k1u",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1v",
+									"text": "أن نربط مجتمع الشركات الناشئة ونُعلمه ونُلهمه عبر صحافة عربية موثوقة، وحوارات مع المؤسّسين، ورؤى عملية في ريادة الأعمال.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k1w",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1x",
+									"text": "رؤيتنا",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k1y",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k1z",
+									"text": "أن نصبح مرجعًا موثوقًا لتغطية ريادة الأعمال في سوريا، وصوتًا معترفًا به لمنظومة الشركات الناشئة في المنطقة العربية.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k20",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k21",
+									"text": "استقلاليتنا",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k22",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k23",
+									"text": "Arabs Startups علامة إعلامية مستقلّة. نُميّز بوضوح بين التقارير المستقلّة والرأي والمحتوى المدعوم والبيانات الصحفية.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"locale": "ar"
+			},
+			{
+				"id": "page-about-en",
+				"slug": "about",
+				"status": "published",
+				"data": {
+					"title": "About us",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k24",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k25",
+									"text": "Entrepreneurship is not only about successful fundraising announcements and impressive launch stories. It is also about the experiments, setbacks, difficult decisions, partnerships and determined people behind every company. Arabs Startups was created to document that complete picture.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k26",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k27",
+									"text": "Our coverage starts with the Syrian startup ecosystem. Through news, articles, founder interviews, webinars and podcasts, we turn scattered information into an accessible media resource.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k28",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k29",
+									"text": "Our mission",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k2a",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2b",
+									"text": "To connect, inform and inspire the startup community through credible Arabic-language journalism, founder conversations and useful insights into entrepreneurship.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k2c",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2d",
+									"text": "Independence",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k2e",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2f",
+									"text": "Arabs Startups is an independent media brand. We clearly label opinion, sponsored content and press releases so readers can tell them apart from independent reporting.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"locale": "en",
+				"translationOf": "page-about"
+			},
+			{
+				"id": "page-submit",
+				"slug": "submit-news",
+				"status": "published",
+				"data": {
+					"title": "أرسل خبرًا أو قصة",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k2g",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2h",
+									"text": "نرحّب بأخبار الشركات الناشئة، وقصص المؤسّسين، وإعلانات الفعاليات، ومقترحات التعاون الإعلامي.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k2i",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2j",
+									"text": "ما الذي يحدث بعد الإرسال",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k2k",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2l",
+									"text": "الإرسال لا يضمن النشر. يراجع الفريق التحريري كل طلب.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k2m",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2n",
+									"text": "نطلب مصادر يمكن التحقّق منها لكل خبر أو رقم.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k2o",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2p",
+									"text": "إذا قُبل محتوى مدعوم أو مدفوع فسيُوسَم بوضوح.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k2q",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2r",
+									"text": "لا نَعِد بمدّة محدّدة للردّ.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						}
+					]
+				},
+				"locale": "ar"
+			},
+			{
+				"id": "page-privacy",
+				"slug": "privacy",
+				"status": "published",
+				"data": {
+					"title": "سياسة الخصوصية",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k2s",
+							"style": "blockquote",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2t",
+									"text": "مسودة أولية بانتظار المراجعة القانونية والتحريرية قبل الإطلاق.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k2u",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2v",
+									"text": "نجمع الحدّ الأدنى من البيانات اللازمة لتشغيل التعليقات ونموذج التواصل.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k2w",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2x",
+									"text": "ما الذي نجمعه",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k2y",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2z",
+									"text": "التعليقات: الاسم المعروض، والبريد الإلكتروني (لا يُنشر أبدًا)، ونصّ التعليق.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k30",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k31",
+									"text": "نموذج التواصل: الاسم، والبريد، والموضوع، والرسالة، والمؤسّسة اختياريًا.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k32",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k33",
+									"text": "لحماية الموقع من الإساءة نحفظ بصمة مشفّرة لعنوان IP، لا العنوان نفسه.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k34",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k35",
+									"text": "لماذا نجمعه",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k36",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k37",
+									"text": "لمراجعة التعليقات قبل نشرها، والردّ على رسائلك، ومنع الرسائل المزعجة. لا نبيع البيانات ولا نضيفك إلى أي قائمة بريدية دون موافقتك.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k38",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k39",
+									"text": "مدة الاحتفاظ",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k3a",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3b",
+									"text": "تُحذف رسائل نموذج التواصل تلقائيًا بعد مدّة الاحتفاظ المحدّدة. يمكنك طلب الاطلاع على بياناتك أو حذفها عبر صفحة «اتصل بنا».",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k3c",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3d",
+									"text": "ملفات تعريف الارتباط",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k3e",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3f",
+									"text": "لا نستخدم ملفات تعريف ارتباط إعلانية. تُستخدم ملفات ضرورية فقط لتسجيل دخول فريق التحرير ولحماية النماذج من الروبوتات.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"locale": "ar"
+			},
+			{
+				"id": "page-privacy-en",
+				"slug": "privacy",
+				"status": "published",
+				"data": {
+					"title": "Privacy policy",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k3g",
+							"style": "blockquote",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3h",
+									"text": "Initial draft awaiting legal and editorial review before launch.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k3i",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3j",
+									"text": "We collect the minimum data needed to run comments and the contact form. Commenter emails are never published. To prevent abuse we store a one-way hash of your IP address, not the address itself. Contact messages are deleted automatically after the retention period. You can ask to see or delete your data through the contact page.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"locale": "en",
+				"translationOf": "page-privacy"
+			},
+			{
+				"id": "page-terms",
+				"slug": "terms",
+				"status": "published",
+				"data": {
+					"title": "شروط الاستخدام",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k3k",
+							"style": "blockquote",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3l",
+									"text": "مسودة أولية بانتظار المراجعة القانونية والتحريرية قبل الإطلاق.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k3m",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3n",
+									"text": "باستخدامك الموقع فأنت توافق على استخدام المحتوى لأغراض مشروعة، واحترام حقوق الملكية الفكرية، وعدم إساءة استخدام خدمات التعليق والتواصل.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"locale": "ar"
+			},
+			{
+				"id": "page-terms-en",
+				"slug": "terms",
+				"status": "published",
+				"data": {
+					"title": "Terms of use",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k3o",
+							"style": "blockquote",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3p",
+									"text": "Initial draft awaiting legal and editorial review before launch.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k3q",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3r",
+									"text": "By using this site you agree to use its content lawfully, respect intellectual property and not misuse the comment and contact services.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"locale": "en",
+				"translationOf": "page-terms"
+			},
+			{
+				"id": "page-editorial",
+				"slug": "editorial-policy",
+				"status": "published",
+				"data": {
+					"title": "السياسة التحريرية",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k3s",
+							"style": "blockquote",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3t",
+									"text": "مسودة أولية بانتظار المراجعة القانونية والتحريرية قبل الإطلاق.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k3u",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3v",
+									"text": "نتحقّق من التواريخ والأرقام وأسماء المستثمرين والمشاركين من مصادر أوّلية أو مؤكّدة مستقلّة.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k3w",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3x",
+									"text": "ننسب المعلومات إلى مصادرها، ولا ننسخ مقالات الآخرين.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k3y",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3z",
+									"text": "نوسم الرأي والمحتوى المدعوم والبيانات الصحفية بوضوح.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k40",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k41",
+									"text": "لا نغطّي الشأن السياسي؛ تركيزنا ريادة الأعمال والابتكار والاقتصاد المرتبط بهما.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k42",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k43",
+									"text": "نحصل على موافقة الضيوف على الحوارات المسجّلة وعلى حقوق الصور والوسائط.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k44",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k45",
+									"text": "نغطّي المنظومة كلّها بإنصاف، بصرف النظر عن أي مستثمر أو حاضنة أو مسرّعة.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						}
+					]
+				},
+				"locale": "ar"
+			},
+			{
+				"id": "page-editorial-en",
+				"slug": "editorial-policy",
+				"status": "published",
+				"data": {
+					"title": "Editorial policy",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k46",
+							"style": "blockquote",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k47",
+									"text": "Initial draft awaiting legal and editorial review before launch.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k48",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k49",
+									"text": "We verify dates, figures, investors and participant names with primary or independently confirmed sources.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k4a",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k4b",
+									"text": "We credit sources and never copy other publishers' articles.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k4c",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k4d",
+									"text": "Opinion, sponsored content and press releases are clearly labelled.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k4e",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k4f",
+									"text": "We do not cover politics; we focus on entrepreneurship, innovation and related economic developments.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						}
+					]
+				},
+				"locale": "en",
+				"translationOf": "page-editorial"
+			},
+			{
+				"id": "page-corrections",
+				"slug": "corrections",
+				"status": "published",
+				"data": {
+					"title": "سياسة التصحيحات",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k4g",
+							"style": "blockquote",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k4h",
+									"text": "مسودة أولية بانتظار المراجعة القانونية والتحريرية قبل الإطلاق.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k4i",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k4j",
+									"text": "نصحّح الأخطاء بشفافية، ونذكر التصحيح الجوهري وتاريخه في أسفل المقال المعنيّ. لطلب تصحيح، استخدم صفحة «اتصل بنا» واختر «تصحيح».",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"locale": "ar"
+			},
+			{
+				"id": "page-corrections-en",
+				"slug": "corrections",
+				"status": "published",
+				"data": {
+					"title": "Corrections policy",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k4k",
+							"style": "blockquote",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k4l",
+									"text": "Initial draft awaiting legal and editorial review before launch.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k4m",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k4n",
+									"text": "We correct mistakes openly and note significant corrections, with their date, at the end of the article. To request a correction, use the contact page and choose “Correction”.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"locale": "en",
+				"translationOf": "page-corrections"
+			},
+			{
+				"id": "page-disclosure",
+				"slug": "disclosure",
+				"status": "published",
+				"data": {
+					"title": "الإفصاح عن الرعاية والملكية",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k4o",
+							"style": "blockquote",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k4p",
+									"text": "مسودة أولية بانتظار المراجعة القانونية والتحريرية قبل الإطلاق.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k4q",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k4r",
+									"text": "نُميّز بوضوح المحتوى المدعوم والبيانات الصحفية عن التقارير المستقلّة. يحمل كل محتوى مدعوم وسمًا ظاهرًا.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k4s",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k4t",
+									"text": "يُنشر بيان الملكية القانونية بعد استكمال التحقّق منه.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"locale": "ar"
+			},
+			{
+				"id": "page-disclosure-en",
+				"slug": "disclosure",
+				"status": "published",
+				"data": {
+					"title": "Sponsorship and ownership disclosure",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k4u",
+							"style": "blockquote",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k4v",
+									"text": "Initial draft awaiting legal and editorial review before launch.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k4w",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k4x",
+									"text": "Sponsored content and press releases are always clearly labelled. A legal ownership statement will be published once verified.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"locale": "en",
+				"translationOf": "page-disclosure"
+			},
+			{
+				"id": "page-comment-policy",
+				"slug": "comment-policy",
+				"status": "published",
+				"data": {
+					"title": "سياسة التعليقات",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k4y",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k4z",
+									"text": "نرحّب بالتعليقات المحترمة وذات الصلة. تُراجَع كل التعليقات قبل نشرها.",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "k50",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k51",
+									"text": "لا تحرّش ولا تشهير ولا ادّعاءات مختلَقة.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k52",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k53",
+									"text": "لا رسائل مزعجة ولا ترويج غير مطلوب.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k54",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k55",
+									"text": "لا تنشر بيانات شخصية لأي شخص.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k56",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k57",
+									"text": "قد يردّ المحرّرون علنًا، ويظهر ردّهم بوسم «فريق التحرير».",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k58",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k59",
+									"text": "بريدك الإلكتروني لا يُنشر أبدًا. يظهر تنبيه واضح عندما يكون تعليقك بانتظار المراجعة.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"locale": "ar"
+			},
+			{
+				"id": "page-comment-policy-en",
+				"slug": "comment-policy",
+				"status": "published",
+				"data": {
+					"title": "Comment policy",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "k5a",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k5b",
+									"text": "We welcome respectful, relevant comments. Every comment is reviewed before it is published. No harassment, defamation, spam, unsolicited promotion or disclosure of anyone's personal information. Editors may reply publicly; their replies carry an “Editorial team” badge. Your email address is never published.",
+									"marks": []
+								}
+							]
+						}
+					]
+				},
+				"locale": "en",
+				"translationOf": "page-comment-policy"
+			}
+		]
+	}
+}

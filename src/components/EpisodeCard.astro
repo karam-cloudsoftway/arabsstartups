@@ -1,0 +1,56 @@
+---
+import { formatDate, isoDate, localePath, t, type Locale } from "../i18n";
+import { entrySlug, type EntryLike } from "../lib/content/queries";
+
+interface Props {
+	entry: EntryLike;
+	locale: Locale;
+}
+const { entry, locale } = Astro.props;
+const dict = t(locale);
+const data = entry.data;
+const type = String(data.episode_type ?? "webinar") as "webinar" | "podcast" | "video";
+const date = (data.recorded_at as Date | string | null | undefined) ?? data.publishedAt ?? null;
+---
+
+<article class="card">
+	<a href={localePath(locale, `/episodes/${entrySlug(entry)}`)} class="card-link">
+		<span class="slash-tag">{dict.episodes[type]}</span>
+		<h3 class="card-title">{String(data.title ?? "")}</h3>
+		{data.excerpt && <p class="card-summary">{String(data.excerpt)}</p>}
+		<div class="card-meta">
+			{data.guests && <span>{String(data.guests)}</span>}
+			{date && <time datetime={isoDate(date)}>{formatDate(date, locale)}</time>}
+		</div>
+	</a>
+</article>
+
+<style>
+	.card {
+		border-block-start: 1px solid var(--border);
+		padding-block: var(--space-lg);
+	}
+	.card-link {
+		display: block;
+		color: inherit;
+		text-decoration: none;
+	}
+	.card-title {
+		margin-block: var(--space-sm);
+	}
+	.card-link:hover .card-title {
+		color: var(--accent);
+	}
+	.card-summary {
+		color: var(--muted-fg);
+		margin: 0;
+	}
+	.card-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-sm) var(--space-md);
+		margin-block-start: var(--space-md);
+		font-size: var(--fs-small);
+		color: var(--muted-fg);
+	}
+</style>

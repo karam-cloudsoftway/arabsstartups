@@ -1,0 +1,53 @@
+{
+  "name": "arabsstartups",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Arabs Startups — Arabic-first startup media site (Astro + EmDash on Cloudflare).",
+  "engines": {
+    "node": "^22.23.4 || ^24.15.0 || >=26.0.0"
+  },
+  "emdash": {
+    "label": "Arabs Startups",
+    "seed": "seed/seed.json"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "typecheck": "astro check",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "check": "npm run typecheck && npm run test && npm run build",
+    "seed:build": "node scripts/build-seed.mjs",
+    "build:staging": "CLOUDFLARE_ENV=staging astro build",
+    "build:production": "CLOUDFLARE_ENV=production astro build",
+    "deploy:staging": "npm run build:staging && node scripts/predeploy.mjs staging && wrangler deploy",
+    "deploy:production": "npm run build:production && node scripts/predeploy.mjs production && wrangler deploy",
+    "secrets:generate": "emdash secrets generate"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "14.4.6",
+    "@astrojs/react": "7.1.4",
+    "@emdash-cms/cloudflare": "1.4.0",
+    "@emdash-cms/plugin-audit-log": "0.2.3",
+    "astro": "7.4.7",
+    "emdash": "1.4.0",
+    "jose": "6.2.15",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "zod": "4.6.7"
+  },
+  "overrides": {
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@cloudflare/workers-types": "5.20261107.1",
+    "@playwright/test": "1.65.0",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0",
+    "wrangler": "4.158.0"
+  }
+}

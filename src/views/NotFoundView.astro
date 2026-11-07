@@ -1,0 +1,25 @@
+---
+import Base from "../layouts/Base.astro";
+import { localePath, t, type Locale } from "../i18n";
+
+interface Props {
+	locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+Astro.response.status = 404;
+---
+
+<Base title={dict.notFound.title} description={dict.notFound.body} locale={locale} noindex alternate={false}>
+	<section class="section">
+		<div class="container narrow">
+			<span class="slash-tag">404</span>
+			<h1>{dict.notFound.title}</h1>
+			<p class="lead">{dict.notFound.body}</p>
+			<p>
+				<a class="btn btn-primary" href={localePath(locale, "/")}>{dict.notFound.home}</a>
+				<a class="btn btn-secondary" href={localePath(locale, "/search")}>{dict.nav.search}</a>
+			</p>
+		</div>
+	</section>
+</Base>

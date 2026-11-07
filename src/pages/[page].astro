@@ -1,0 +1,12 @@
+---
+/** Any published CMS page at the site root: /about, /privacy, /terms, … */
+import PageView from "../views/PageView.astro";
+import { loadLocalized } from "../lib/content/routes";
+
+const result = await loadLocalized("pages", Astro.params.page, "ar", (slug) => `/${slug}`);
+if (result.kind === "redirect") return Astro.redirect(result.location, 302);
+if (result.kind === "not-found") return Astro.rewrite("/404");
+if (result.isPreview) Astro.response.headers.set("Cache-Control", "private, no-store");
+---
+
+<PageView entry={result.entry} locale="ar" isPreview={result.isPreview} alternate={result.alternate} />

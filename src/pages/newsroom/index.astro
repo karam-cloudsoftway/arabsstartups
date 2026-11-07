@@ -1,0 +1,91 @@
+---
+import Newsroom from "../../layouts/Newsroom.astro";
+import { writeAudit } from "../../lib/audit/log";
+import { getAlertPrefs, setAlertPrefs } from "../../lib/email/alerts";
+import { isEmailConfigured } from "../../lib/email/send";
+import { countByStatus } from "../../lib/inbox/repo";
+import { getDb, mailSettings, requireStaff } from "../../lib/runtime";
+import { denyResponse } from "../../lib/staff/deny";
+import { field, flashFrom, readStaffForm } from "../../lib/staff/forms";
+import { can } from "../../lib/staff/roles";
+
+export const prerender = false;
+
+// Every signed-in staff member can open the dashboard; each panel checks its own permission.
+const decision = await requireStaff(Astro, "alerts:self");
+if (!decision.ok) return denyResponse(decision);
+const { user } = decision;
+const db = await getDb();
+
+if (Astro.request.method === "POST") {
+	const form = await readStaffForm(Astro.request, Astro.url.origin);
+	if (!form) return Astro.redirect("/newsroom?err=invalid", 303);
+	const prefs = { inquiries: field(form, "inquiries") === "1", comments: field(form, "comments") === "1" };
+	await setAlertPrefs(db, user.id, prefs);
+	await writeAudit(db, {
+		actorId: user.id,
+		actorEmail: user.email,
+		action: "alerts.updated",
+		targetType: "user",
+		targetId: user.id,
+		detail: prefs,
+	});
+	return Astro.redirect("/newsroom?ok=alerts", 303);
+}
+
+const flash = flashFrom(Astro.url);
+const counts = can(user, "inbox:read") ? await countByStatus(db) : null;
+const pending = await db
+	.prepare(`SELECT COUNT(*) AS n FROM _emdash_comments WHERE collection = 'posts' AND status = 'pending'`)
+	.first<{ n: number }>();
+const prefs = await getAlertPrefs(db, user.id);
+const emailReady = isEmailConfigured(mailSettings());
+---
+
+<Newsroom title="لوحة الفريق" user={user}>
+	{flash && <p class:list={["notice", "flash"]} role="status">{flash.text}</p>}
+	<div class="stats">
+		{
+			counts && (
+				<a class="stat" href="/newsroom/inbox?status=new">
+					<strong class="num">{counts.new}</strong>
+					رسائل جديدة
+				</a>
+			)
+		}
+		{
+			counts && (
+				<a class="stat" href="/newsroom/inbox">
+					<strong class="num">{counts.unread}</strong>
+					غير مقروءة
+				</a>
+			)
+		}
+		<a class="stat" href="/newsroom/comments">
+			<strong class="num">{Number(pending?.n ?? 0)}</strong>
+			تعليقات بانتظار المراجعة
+		</a>
+	</div>
+
+	<section class="panel">
+		<h2>كتابة المحتوى ونشره</h2>
+		<p>
+			تُكتب المقالات وتُراجَع وتُنشر من <a href="/_emdash/admin">لوحة المحتوى</a>. المساهم يكتب مسودّات فقط؛
+			الكاتب ينشر مقالاته؛ المحرّر يراجع وينشر كل المقالات.
+		</p>
+	</section>
+
+	<section class="panel">
+		<h2>تنبيهات البريد</h2>
+		<p class="help">
+			اختياري لكل عضو. يصلك رابط فقط إلى غرفة الأخبار، دون نصّ الرسالة أو التعليق، وبحدّ أقصى تنبيه واحد كل
+			١٥ دقيقة.
+		</p>
+		{!emailReady && <p class="notice">البريد الصادر غير مُعدّ بعد، لذلك لن تُرسل التنبيهات.</p>}
+		<form method="post" class="form">
+			<label><input type="checkbox" name="inquiries" value="1" checked={prefs.inquiries} /> رسائل التواصل الجديدة</label>
+			<label><input type="checkbox" name="comments" value="1" checked={prefs.comments} /> التعليقات الجديدة بانتظار المراجعة</label>
+			<div><button class="btn btn-primary btn-sm" type="submit">حفظ</button></div>
+		</form>
+	</section>
+</Newsroom>

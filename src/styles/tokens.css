@@ -1,0 +1,85 @@
+/* ==========================================================================
+   Arabs Startups — design tokens
+   Source of truth: design-system/arabs-startups/MASTER.md ("Slash" brand)
+   Three brand colors: ink #000012, paper #FFFFFF, indigo #4B3BFF (accent only).
+   ========================================================================== */
+
+:root {
+  /* brand constants */
+  --brand-ink: #000012;
+  --brand-paper: #ffffff;
+  --brand-indigo: #4b3bff;
+
+  /* semantic — light (default) */
+  --bg: #ffffff;
+  --fg: #000012;
+  --accent: #4b3bff;
+  --on-accent: #ffffff;
+  --muted-bg: #f4f4f7;
+  --muted-fg: #4a4a55;
+  --border: #e4e4ea;
+  --card: #ffffff;
+  --focus: #4b3bff;
+
+  /* type — font families come from Astro's self-hosted <Font> (--font-ar, --font-latin) */
+  --font-body: var(--font-ar, "IBM Plex Sans Arabic", system-ui, sans-serif);
+  --font-ui-latin: var(--font-latin, "Inter Tight", system-ui, sans-serif);
+  --fs-display: clamp(2.2rem, 5vw, 3.75rem);
+  --fs-h1: clamp(1.8rem, 3.5vw, 2.6rem);
+  --fs-h2: clamp(1.4rem, 2.5vw, 1.9rem);
+  --fs-h3: 1.25rem;
+  --fs-body: 1.0625rem;
+  --fs-small: 0.875rem;
+  --lh-body: 1.7;
+  --lh-head: 1.25;
+
+  /* space */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 72px;
+
+  /* shape */
+  --radius: 2px;
+  --shadow: none;
+  --shadow-lift: 0 1px 2px rgba(0, 0, 18, 0.06);
+  --maxw: 1200px;
+  --maxw-read: 720px;
+
+  /* motion */
+  --t-fast: 160ms;
+  --t-base: 220ms;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  color-scheme: light dark;
+}
+
+/* dark — follows the OS, or forced with [data-theme="dark"] */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000012;
+    --fg: #ffffff;
+    --accent: #8a80ff; /* pure indigo fails text contrast on ink */
+    --on-accent: #000012;
+    --muted-bg: #0c0c1c;
+    --muted-fg: #a6a6b5;
+    --border: #232334;
+    --card: #0c0c1c;
+    --focus: #8a80ff;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #000012;
+  --fg: #ffffff;
+  --accent: #8a80ff;
+  --on-accent: #000012;
+  --muted-bg: #0c0c1c;
+  --muted-fg: #a6a6b5;
+  --border: #232334;
+  --card: #0c0c1c;
+  --focus: #8a80ff;
+}

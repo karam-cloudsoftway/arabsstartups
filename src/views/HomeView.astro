@@ -1,0 +1,232 @@
+---
+import ArticleCard from "../components/ArticleCard.astro";
+import EpisodeCard from "../components/EpisodeCard.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import Base from "../layouts/Base.astro";
+import { localePath, t, type Locale } from "../i18n";
+import { CATEGORY, listEpisodes, listPosts } from "../lib/content/queries";
+
+interface Props {
+	locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const L = (path: string) => localePath(locale, path);
+
+const [latest, stories, episodes] = await Promise.all([
+	listPosts(locale, { limit: 6, category: CATEGORY.news }),
+	listPosts(locale, { limit: 3, category: CATEGORY.stories }),
+	listEpisodes(locale, { limit: 3 }),
+]);
+---
+
+<Base title={dict.home.title} description={dict.home.description} locale={locale}>
+	<section class="hero section">
+		<div class="container hero-grid">
+			<div class="hero-copy">
+				<span class="slash-tag">{dict.home.eyebrow}</span>
+				<h1>{dict.home.headline}</h1>
+				<p class="hero-sub">{dict.home.sub}</p>
+				<div class="hero-actions">
+					<a href={L("/news")} class="btn btn-primary">{dict.home.primaryCta}</a>
+					<a href={L("/contact")} class="btn btn-secondary">{dict.home.secondaryCta}</a>
+				</div>
+			</div>
+			<div class="hero-mark" aria-hidden="true">
+				<span>arabs</span><span class="hero-slash">/</span><span>startups</span>
+			</div>
+		</div>
+	</section>
+
+	{
+		latest.cards.length > 0 && (
+			<section class="section" aria-labelledby="latest-heading">
+				<div class="container">
+					<SectionHeading
+						id="latest-heading"
+						tag={dict.home.latestTag}
+						title={dict.home.latestTitle}
+						href={L("/news")}
+						linkLabel={dict.listing.allNews}
+						locale={locale}
+					/>
+					<p class="section-desc">{dict.home.latestDesc}</p>
+					<div class="grid-cards">
+						{latest.cards.map((card) => <ArticleCard card={card} locale={locale} />)}
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	{
+		stories.cards.length > 0 && (
+			<section class="section stories" aria-labelledby="stories-heading">
+				<div class="container">
+					<SectionHeading
+						id="stories-heading"
+						tag={dict.home.storiesTag}
+						title={dict.home.storiesTitle}
+						href={L("/stories")}
+						linkLabel={dict.listing.more}
+						locale={locale}
+					/>
+					<p class="section-desc">{dict.home.storiesDesc}</p>
+					<div class="grid-cards">
+						{stories.cards.map((card) => <ArticleCard card={card} locale={locale} featured />)}
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	{
+		episodes.entries.length > 0 && (
+			<section class="section" aria-labelledby="watch-heading">
+				<div class="container">
+					<SectionHeading
+						id="watch-heading"
+						tag={dict.home.watchTag}
+						title={dict.home.watchTitle}
+						href={L("/episodes")}
+						linkLabel={dict.listing.more}
+						locale={locale}
+					/>
+					<p class="section-desc">{dict.home.watchDesc}</p>
+					<div class="grid-cards">
+						{episodes.entries.map((entry) => <EpisodeCard entry={entry} locale={locale} />)}
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	<section class="section" aria-labelledby="series-heading">
+		<div class="container">
+			<SectionHeading id="series-heading" tag={dict.home.seriesTag} title={dict.home.seriesTitle} locale={locale} />
+			<p class="section-desc">{dict.home.seriesNote}</p>
+			<div class="series-grid">
+				{
+					dict.home.series.map((item) => (
+						<div class="series-card">
+							<h3>{item.title}</h3>
+							<p>{item.note}</p>
+						</div>
+					))
+				}
+			</div>
+		</div>
+	</section>
+
+	<section class="section cta-band" aria-labelledby="join-heading">
+		<div class="container cta-inner">
+			<div>
+				<h2 id="join-heading">{dict.home.joinTitle}</h2>
+				<p>{dict.home.joinCopy}</p>
+			</div>
+			<a href={L("/contact")} class="btn cta-btn">{dict.home.joinCta}</a>
+		</div>
+	</section>
+</Base>
+
+<style>
+	.hero {
+		border-block-end: 1px solid var(--border);
+	}
+	.hero-grid {
+		display: grid;
+		grid-template-columns: 1.3fr 1fr;
+		gap: var(--space-2xl);
+		align-items: center;
+	}
+	.hero-copy h1 {
+		font-size: var(--fs-display);
+		margin-block: var(--space-md) var(--space-lg);
+	}
+	.hero-sub {
+		font-size: 1.2rem;
+		color: var(--muted-fg);
+		max-width: 48ch;
+	}
+	.hero-actions {
+		display: flex;
+		gap: var(--space-md);
+		flex-wrap: wrap;
+		margin-block-start: var(--space-xl);
+	}
+	.hero-mark {
+		font-family: var(--font-ui-latin);
+		font-weight: 800;
+		letter-spacing: -0.03em;
+		font-size: clamp(2rem, 6vw, 4.2rem);
+		line-height: 1.05;
+		direction: ltr;
+		text-align: start;
+		overflow-wrap: anywhere;
+	}
+	.hero-slash {
+		color: var(--accent);
+	}
+	.section-desc {
+		color: var(--muted-fg);
+		margin-block: calc(-1 * var(--space-md)) var(--space-lg);
+	}
+	.series-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--space-lg);
+	}
+	.series-card {
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		padding: var(--space-lg);
+	}
+	.series-card h3 {
+		margin-block-end: var(--space-xs);
+	}
+	.series-card p {
+		color: var(--muted-fg);
+		margin: 0;
+	}
+	.cta-band {
+		background: var(--fg);
+		color: var(--bg);
+		margin-block-start: var(--space-2xl);
+	}
+	.cta-inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-xl);
+		flex-wrap: wrap;
+	}
+	.cta-band h2 {
+		margin-block-end: var(--space-sm);
+	}
+	.cta-band p {
+		margin: 0;
+		max-width: 56ch;
+		opacity: 0.85;
+	}
+	.cta-btn {
+		background: var(--bg);
+		color: var(--fg);
+	}
+	.cta-btn:hover {
+		background: var(--accent);
+		color: var(--on-accent);
+	}
+	@media (max-width: 900px) {
+		.series-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+	@media (max-width: 620px) {
+		.hero-grid {
+			grid-template-columns: 1fr;
+		}
+		.hero-mark {
+			display: none;
+		}
+	}
+</style>

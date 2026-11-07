@@ -1,0 +1,59 @@
+---
+/** Section heading with the leading indigo slash tag (e.g. "/ الأخبار"). */
+import type { Locale } from "../i18n";
+
+interface Props {
+	tag: string;
+	title: string;
+	href?: string;
+	linkLabel?: string;
+	id?: string;
+	locale: Locale;
+}
+const { tag, title, href, linkLabel, id, locale } = Astro.props;
+const arrow = locale === "ar" ? "←" : "→";
+---
+
+<div class="section-heading">
+	<div>
+		<span class="slash-tag">{tag}</span>
+		<h2 id={id}>{title}</h2>
+	</div>
+	{
+		href && linkLabel && (
+			<a class="more-link" href={href}>
+				{linkLabel} <span aria-hidden="true">{arrow}</span>
+			</a>
+		)
+	}
+</div>
+
+<style>
+	.section-heading {
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: var(--space-md);
+		margin-block-end: var(--space-xl);
+		border-block-end: 2px solid var(--fg);
+		padding-block-end: var(--space-sm);
+	}
+	.section-heading h2 {
+		margin: 0;
+	}
+	.more-link {
+		flex: none;
+		font-size: var(--fs-small);
+		font-weight: 600;
+		color: var(--fg);
+		text-decoration: none;
+		white-space: nowrap;
+		min-height: 44px;
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-xs);
+	}
+	.more-link:hover {
+		color: var(--accent);
+	}
+</style>

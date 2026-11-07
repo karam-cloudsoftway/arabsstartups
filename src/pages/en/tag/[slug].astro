@@ -1,0 +1,9 @@
+---
+import ListingView from "../../../views/ListingView.astro";
+import { loadTaxonomy } from "../../../lib/content/listing";
+
+const data = await loadTaxonomy("tag", Astro.params.slug, "en", Astro.url);
+if (!data) return Astro.rewrite("/en/404");
+---
+
+<ListingView locale="en" {...data} />

@@ -1,0 +1,79 @@
+---
+import EpisodeCard from "../components/EpisodeCard.astro";
+import Base from "../layouts/Base.astro";
+import { localePath, t, type Locale } from "../i18n";
+import { listEpisodes } from "../lib/content/queries";
+
+interface Props {
+	locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const requested = Astro.url.searchParams.get("type");
+const type = requested === "webinar" || requested === "podcast" || requested === "video" ? requested : undefined;
+const { entries } = await listEpisodes(locale, { limit: 24, type });
+const base = localePath(locale, "/episodes");
+const filters = [
+	{ value: undefined, label: dict.episodes.all },
+	{ value: "webinar", label: dict.episodes.webinar },
+	{ value: "podcast", label: dict.episodes.podcast },
+	{ value: "video", label: dict.episodes.video },
+];
+---
+
+<Base title={dict.episodes.title} description={dict.episodes.intro} locale={locale}>
+	<section class="section">
+		<div class="container">
+			<header class="page-head">
+				<span class="slash-tag">{dict.nav.episodes}</span>
+				<h1>{dict.episodes.title}</h1>
+				<p class="lead">{dict.episodes.intro}</p>
+			</header>
+			<nav class="filters" aria-label={dict.episodes.title}>
+				{
+					filters.map((filter) => (
+						<a
+							href={filter.value ? `${base}?type=${filter.value}` : base}
+							aria-current={filter.value === type ? "page" : undefined}
+						>
+							{filter.label}
+						</a>
+					))
+				}
+			</nav>
+			{
+				entries.length > 0 ? (
+					<div class="grid-cards">
+						{entries.map((entry) => <EpisodeCard entry={entry} locale={locale} />)}
+					</div>
+				) : (
+					<p class="notice">{dict.episodes.empty}</p>
+				)
+			}
+		</div>
+	</section>
+</Base>
+
+<style>
+	.filters {
+		display: flex;
+		gap: var(--space-md);
+		flex-wrap: wrap;
+		margin-block-end: var(--space-xl);
+	}
+	.filters a {
+		color: var(--fg);
+		font-weight: 600;
+		text-decoration: none;
+		padding: var(--space-xs) var(--space-md);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		min-height: 44px;
+		display: inline-flex;
+		align-items: center;
+	}
+	.filters a[aria-current="page"] {
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+</style>

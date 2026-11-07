@@ -1,0 +1,53 @@
+---
+import Newsroom from "../../layouts/Newsroom.astro";
+import { getDb, requireStaff } from "../../lib/runtime";
+import { denyResponse } from "../../lib/staff/deny";
+import { listStaff } from "../../lib/staff/guard";
+import { roleLabel } from "../../lib/staff/roles";
+
+export const prerender = false;
+
+const decision = await requireStaff(Astro, "team:read");
+if (!decision.ok) return denyResponse(decision);
+const { user } = decision;
+const db = await getDb();
+const staff = await listStaff(db, 10);
+const admins = staff.filter((member) => member.role >= 50 && !member.disabled).length;
+---
+
+<Newsroom title="الفريق والصلاحيات" user={user}>
+	{admins > 2 && <p class="notice">يوجد {admins} مديرين نشطين. المطلوب مدير أساسي ومدير احتياطي فقط.</p>}
+	{admins < 2 && <p class="notice">يُنصح بوجود مدير احتياطي ثانٍ مفعّل.</p>}
+
+	<div class="table-wrap">
+		<table class="table">
+			<thead>
+				<tr><th scope="col">الاسم</th><th scope="col">البريد</th><th scope="col">الدور</th><th scope="col">الحالة</th></tr>
+			</thead>
+			<tbody>
+				{staff.map((member) => (
+					<tr>
+						<td>{member.name ?? "—"}</td>
+						<td class="ltr">{member.email}</td>
+						<td>{roleLabel(member.role)}</td>
+						<td>{member.disabled ? <span class="badge">معطّل</span> : "نشط"}</td>
+					</tr>
+				))}
+			</tbody>
+		</table>
+	</div>
+
+	<section class="panel" style="margin-block-start: var(--space-lg)">
+		<h2>إضافة عضو (خطوتان)</h2>
+		<ol>
+			<li>أضِف بريده <strong>باسمه</strong> إلى سياسة تطبيق Arabs Startups في <a href="https://one.dash.cloudflare.com/" rel="noopener noreferrer" target="_blank">Cloudflare Zero Trust</a> (لا نطاقات كاملة ولا «السماح للجميع»).</li>
+			<li>عند أول دخول يُنشأ حسابه بدور «مساهم». ارفع دوره عند الموافقة من <a href="/_emdash/admin/users">لوحة المحتوى ← المستخدمون</a>.</li>
+		</ol>
+		<h2>إزالة عضو (في اليوم نفسه)</h2>
+		<ol>
+			<li>احذف بريده من سياسة Cloudflare Access، وأنهِ جلساته من صفحة المستخدمين في Zero Trust.</li>
+			<li>عطّل حسابه في <a href="/_emdash/admin/users">لوحة المحتوى ← المستخدمون</a>. يُمنع فورًا من غرفة الأخبار ولوحة المحتوى.</li>
+		</ol>
+		<p class="help">كل إضافة أو تغيير صلاحية أو تعطيل يظهر تلقائيًا في <a href="/newsroom/audit">سجلّ التدقيق</a>.</p>
+	</section>
+</Newsroom>

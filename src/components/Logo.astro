@@ -1,0 +1,58 @@
+---
+/**
+ * arabs/startups lockup — the "Slash" brand.
+ * The wordmark is locked LTR even on Arabic pages (per MASTER.md §5).
+ * variant: "wordmark" (default) | "symbol" (the a/ block, for small sizes)
+ */
+interface Props {
+  variant?: "wordmark" | "symbol";
+  class?: string;
+}
+const { variant = "wordmark", class: className = "" } = Astro.props;
+---
+
+{
+  variant === "wordmark" ? (
+    <span class:list={["as-logo", className]} dir="ltr" aria-hidden="true">
+      <span>arabs</span><span class="as-slash">/</span><span>startups</span>
+    </span>
+  ) : (
+    <span class:list={["as-symbol", className]} dir="ltr" aria-hidden="true">
+      a<span class="as-slash">/</span>
+    </span>
+  )
+}
+
+<style>
+  .as-logo {
+    font-family: var(--font-ui-latin);
+    font-weight: 800;
+    letter-spacing: -0.028em;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--fg);
+    text-transform: lowercase;
+    white-space: nowrap;
+  }
+  .as-slash {
+    color: var(--accent);
+    font-weight: 800;
+  }
+  .as-symbol {
+    font-family: var(--font-ui-latin);
+    font-weight: 800;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: var(--on-accent);
+    background: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9em;
+    height: 1.9em;
+    border-radius: 0;
+  }
+  .as-symbol .as-slash {
+    color: var(--on-accent);
+  }
+</style>

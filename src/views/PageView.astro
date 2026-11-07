@@ -1,0 +1,57 @@
+---
+import { PortableText } from "emdash/ui";
+import Base from "../layouts/Base.astro";
+import { formatDate, isoDate, t, type Locale } from "../i18n";
+import { entrySlug, type EntryLike } from "../lib/content/queries";
+
+interface Props {
+	entry: EntryLike;
+	locale: Locale;
+	isPreview: boolean;
+	alternate: string | false;
+	/** Extra content rendered below the CMS text (e.g. the contact form). */
+	compact?: boolean;
+}
+const { entry, locale, isPreview, alternate, compact = false } = Astro.props;
+const dict = t(locale);
+const data = entry.data;
+const title = String(data.title ?? "");
+const updatedAt = (data.updatedAt as Date | undefined) ?? null;
+---
+
+<Base
+	title={title}
+	description={String(data.excerpt ?? dict.home.description)}
+	locale={locale}
+	content={{ collection: "pages", id: data.id, slug: entrySlug(entry) }}
+	noindex={isPreview}
+	alternate={alternate}
+>
+	<section class:list={["section", { "section-tight": compact }]}>
+		<div class="container narrow">
+			<span class="slash-tag">{title}</span>
+			<h1 class="page-title">{title}</h1>
+			<div class="prose">
+				<PortableText value={(data.content as never) ?? []} />
+			</div>
+			{
+				updatedAt && !compact && (
+					<p class="help updated">
+						{dict.article.updated}: <time datetime={isoDate(updatedAt)}>{formatDate(updatedAt, locale)}</time>
+					</p>
+				)
+			}
+			<slot />
+		</div>
+	</section>
+</Base>
+
+<style>
+	.page-title {
+		font-size: var(--fs-h1);
+		margin-block: var(--space-sm) var(--space-lg);
+	}
+	.updated {
+		margin-block-start: var(--space-xl);
+	}
+</style>

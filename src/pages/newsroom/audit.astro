@@ -1,0 +1,74 @@
+---
+import Newsroom from "../../layouts/Newsroom.astro";
+import { formatDate } from "../../i18n";
+import { listAudit } from "../../lib/audit/log";
+import { syncRoster } from "../../lib/audit/roster";
+import { getDb, requireStaff } from "../../lib/runtime";
+import { denyResponse } from "../../lib/staff/deny";
+
+export const prerender = false;
+
+const decision = await requireStaff(Astro, "audit:read");
+if (!decision.ok) return denyResponse(decision);
+const { user } = decision;
+const db = await getDb();
+// Pick up staff changes made in the CMS since the last scheduled check.
+await syncRoster(db);
+const page = Math.max(1, Number.parseInt(Astro.url.searchParams.get("page") ?? "1", 10) || 1);
+const entries = await listAudit(db, { limit: 50, offset: (page - 1) * 50 });
+
+const LABELS: Record<string, string> = {
+	"inquiry.received": "رسالة واردة",
+	"inquiry.status": "تغيير حالة رسالة",
+	"inquiry.assign": "إسناد رسالة",
+	"inquiry.note": "ملاحظة داخلية",
+	"inquiry.reply": "ردّ بالبريد",
+	"inquiry.delete": "حذف رسالة",
+	"inquiry.export": "تصدير الرسائل",
+	"inquiry.purge": "حذف تلقائي (انتهاء مدة الاحتفاظ)",
+	"comment.reply": "ردّ فريق التحرير",
+	"comment.moderate": "إشراف على تعليق",
+	"staff.added": "إضافة عضو",
+	"staff.role_changed": "تغيير صلاحية",
+	"staff.disabled": "تعطيل حساب",
+	"staff.enabled": "إعادة تفعيل حساب",
+	"staff.removed": "حذف حساب",
+	"staff.denied": "رفض وصول",
+	"alerts.updated": "تفضيلات التنبيه",
+};
+---
+
+<Newsroom title="سجلّ التدقيق" user={user}>
+	<p class="help">
+		كل إجراء حسّاس يُسجَّل هنا. تغييرات الحسابات والصلاحيات تُرصد تلقائيًا أينما جرت. سجلّ تعديلات المحتوى
+		والوسائط متاح في <a href="/_emdash/admin/plugins/audit-log/history">لوحة المحتوى ← سجلّ التدقيق</a>.
+	</p>
+	<div class="table-wrap">
+		<table class="table">
+			<thead>
+				<tr>
+					<th scope="col">الوقت</th>
+					<th scope="col">الإجراء</th>
+					<th scope="col">المنفّذ</th>
+					<th scope="col">الهدف</th>
+					<th scope="col">التفاصيل</th>
+				</tr>
+			</thead>
+			<tbody>
+				{entries.map((entry) => (
+					<tr>
+						<td><time datetime={entry.at}>{formatDate(entry.at, "ar", true)}</time></td>
+						<td>{LABELS[entry.action] ?? entry.action}</td>
+						<td class="ltr">{entry.actor_email ?? "النظام"}</td>
+						<td class="ltr">{entry.target_type}{entry.target_id ? `:${entry.target_id.slice(0, 12)}` : ""}</td>
+						<td class="ltr"><code>{entry.detail ?? ""}</code></td>
+					</tr>
+				))}
+			</tbody>
+		</table>
+	</div>
+	<nav class="pager" aria-label="صفحات">
+		{page > 1 ? <a href={`?page=${page - 1}`}>الأحدث</a> : <span />}
+		{entries.length === 50 ? <a href={`?page=${page + 1}`}>الأقدم</a> : <span />}
+	</nav>
+</Newsroom>

@@ -1,0 +1,95 @@
+---
+/** Editorial article card (typography-led; optional licensed cover image). */
+import { Image } from "emdash/ui";
+import { formatDate, isoDate, localePath, t, type Locale } from "../i18n";
+import type { CardData } from "../lib/content/queries";
+
+interface Props {
+	card: CardData;
+	locale: Locale;
+	featured?: boolean;
+	showImage?: boolean;
+}
+const { card, locale, featured = false, showImage = true } = Astro.props;
+const dict = t(locale);
+const href = localePath(locale, `/articles/${card.slug}`);
+const label = dict.labels[card.contentLabel];
+const flagged = ["opinion", "partner", "sponsored", "press_release"].includes(card.contentLabel);
+const hasImage =
+	showImage && !!card.image && typeof card.image === "object" && "id" in (card.image as object);
+---
+
+<article class:list={["card", { featured }]}>
+	<a href={href} class="card-link">
+		{
+			hasImage && (
+				<div class="card-media">
+					<Image image={card.image as never} sizes="(max-width: 620px) 100vw, 33vw" />
+				</div>
+			)
+		}
+		<div class="card-tags">
+			{card.categoryLabel && <span class="slash-tag">{card.categoryLabel}</span>}
+			{flagged && label && <span class="badge badge-accent">{label}</span>}
+		</div>
+		<h3 class="card-title">{card.title}</h3>
+		{card.excerpt && <p class="card-summary">{card.excerpt}</p>}
+		<div class="card-meta">
+			{card.author && <span>{card.author}</span>}
+			{card.date && <time datetime={isoDate(card.date)}>{formatDate(card.date, locale)}</time>}
+			{card.sample && <span class="badge badge-warn">{dict.article.sample}</span>}
+		</div>
+	</a>
+</article>
+
+<style>
+	.card {
+		border-block-start: 1px solid var(--border);
+		padding-block: var(--space-lg);
+	}
+	.card-link {
+		display: block;
+		color: inherit;
+		text-decoration: none;
+	}
+	.card-media {
+		margin-block-end: var(--space-md);
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		background: var(--muted-bg);
+	}
+	.card-media :global(img) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	.card-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-sm);
+		align-items: center;
+	}
+	.card-title {
+		margin-block: var(--space-sm);
+		transition: color var(--t-base) var(--ease);
+	}
+	.featured .card-title {
+		font-size: var(--fs-h2);
+	}
+	.card-link:hover .card-title {
+		color: var(--accent);
+	}
+	.card-summary {
+		color: var(--muted-fg);
+		margin: 0;
+	}
+	.card-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-sm) var(--space-md);
+		align-items: center;
+		margin-block-start: var(--space-md);
+		font-size: var(--fs-small);
+		color: var(--muted-fg);
+	}
+</style>

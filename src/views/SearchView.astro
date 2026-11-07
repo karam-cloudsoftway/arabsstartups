@@ -1,0 +1,108 @@
+---
+import { search } from "emdash";
+import Base from "../layouts/Base.astro";
+import { localePath, t, type Locale } from "../i18n";
+
+interface Props {
+	locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const query = (Astro.url.searchParams.get("q") ?? "").trim().slice(0, 100);
+
+interface Hit {
+	collection: string;
+	slug: string | null;
+	title?: string;
+	snippet?: string;
+}
+let hits: Hit[] = [];
+if (query.length >= 2) {
+	try {
+		const response = await search(query, {
+			collections: ["posts", "episodes"],
+			status: "published",
+			locale,
+			limit: 20,
+		});
+		hits = (response.items ?? []) as Hit[];
+	} catch (error) {
+		console.error("[search]", error instanceof Error ? error.message : error);
+	}
+}
+
+function hrefFor(hit: Hit): string | null {
+	if (!hit.slug) return null;
+	const prefix = hit.collection === "episodes" ? "/episodes/" : "/articles/";
+	return localePath(locale, `${prefix}${hit.slug}`);
+}
+/** Snippet highlights come back as text; strip any markup and render escaped. */
+function plain(text: string | undefined): string {
+	return (text ?? "").replace(/<[^>]*>/g, "");
+}
+---
+
+<Base title={dict.search.title} description={dict.home.description} locale={locale} noindex>
+	<section class="section">
+		<div class="container narrow">
+			<header class="page-head">
+				<span class="slash-tag">{dict.search.title}</span>
+				<h1>{dict.search.title}</h1>
+			</header>
+			<form class="search-form" action={localePath(locale, "/search")} method="get" role="search">
+				<label for="q" class="visually-hidden">{dict.search.label}</label>
+				<input id="q" name="q" type="search" value={query} placeholder={dict.search.placeholder} maxlength="100" />
+				<button type="submit" class="btn btn-primary">{dict.search.button}</button>
+			</form>
+			{
+				query.length >= 2 && (
+					<p class="help" role="status">
+						{hits.length > 0 ? dict.search.results(hits.length) : dict.search.none}
+					</p>
+				)
+			}
+			<ol class="results">
+				{
+					hits.map((hit) => {
+						const href = hrefFor(hit);
+						return href ? (
+							<li>
+								<a href={href}>{hit.title ?? hit.slug}</a>
+								{hit.snippet && <p class="help">{plain(hit.snippet)}</p>}
+							</li>
+						) : null;
+					})
+				}
+			</ol>
+		</div>
+	</section>
+</Base>
+
+<style>
+	.search-form {
+		display: flex;
+		gap: var(--space-sm);
+		margin-block-end: var(--space-lg);
+	}
+	.search-form input {
+		flex: 1;
+		font: inherit;
+		min-height: 44px;
+		padding: var(--space-sm) var(--space-md);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		background: var(--bg);
+		color: var(--fg);
+	}
+	.results {
+		list-style: none;
+		padding: 0;
+		display: grid;
+		gap: var(--space-lg);
+		margin-block-start: var(--space-lg);
+	}
+	.results a {
+		font-weight: 700;
+		font-size: 1.1rem;
+	}
+</style>
