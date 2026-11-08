@@ -7,6 +7,7 @@ export const prerender = false;
 
 function xml(value: string): string {
 	return value
+		// eslint-disable-next-line no-control-regex -- XML 1.0 forbids these characters; strip them
 		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
 		.replaceAll("&", "&amp;")
 		.replaceAll("<", "&lt;")

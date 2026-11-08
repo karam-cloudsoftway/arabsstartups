@@ -39,7 +39,13 @@ Visitor ──► Cloudflare edge ──► Worker (Astro + EmDash)
 | Secrets only in Worker secrets; build refuses placeholder/test keys | wrangler.jsonc, scripts/predeploy.mjs | — |
 | Embeds only from an allow-list, sandboxed iframes | src/lib/content/embeds.ts | unit + e2e |
 | Data retention: contact messages auto-deleted | src/lib/maintenance.ts | unit |
-| Dependencies pinned; vulnerable transitive `zod` overridden | package.json | `npm audit` → 0 |
+| Dependencies pinned; vulnerable transitive `zod` and `minimatch` overridden; Dependabot updates with a cooldown | package.json, .github/dependabot.yml | `npm audit` → 0 in CI |
+| Lockfile only from the npm registry with integrity hashes; registry signatures verified | scripts/check-lockfile.mjs, `npm audit signatures` | CI |
+| CI/CD: actions pinned to commit SHAs, read-only tokens, deploy token only in the deploy step, production only from `main` | .github/workflows/ci.yml ([CI_CD.md](CI_CD.md)) | zizmor + actionlint in CI |
+| Secret scan of the whole git history | gitleaks in CI | CI |
+| Lint guards for project rules: no secrets via `import.meta.env`, no inline scripts, no `set:html`, bound SQL; accessibility rules | eslint.config.mjs | `npm run lint` in CI |
+| Static analysis for risky code and hard-coded secrets | Semgrep in CI | CI |
+| After every deploy: health, headers, and all private areas closed | scripts/smoke-test.mjs | each deploy |
 
 ## Residual risks and manual duties
 
@@ -49,6 +55,9 @@ Visitor ──► Cloudflare edge ──► Worker (Astro + EmDash)
   against `/newsroom/team`.
 - **Sessions after removal.** Removing an email from Access stops new sign-ins;
   revoke sessions in Zero Trust *and* disable the CMS user (OPERATIONS.md).
+- **The deploy token.** Whoever holds the Cloudflare deploy token can change the
+  live site. Keep it in a GitHub environment that only `main` can use, rotate it
+  every 90 days, and keep GitHub write access small ([CI_CD.md](CI_CD.md) §3).
 - **Rate limits need Cloudflare.** Limits key on `CF-Connecting-IP`, which only
   Cloudflare sets. Do not expose the Worker through another proxy.
 - **Legal pages are drafts.** Privacy, terms and disclosure need legal review

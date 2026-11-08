@@ -39,6 +39,7 @@ export async function alertRecipients(db: SqlDb, kind: AlertKind, fallback: stri
 	const column = kind === "inquiries" ? "p.inquiries" : "p.comments";
 	const { results } = await db
 		.prepare(
+			// eslint-disable-next-line no-restricted-syntax -- column is one of two fixed names chosen above
 			`SELECT u.email AS email FROM as_alert_prefs p JOIN users u ON u.id = p.user_id
 			 WHERE ${column} = 1 AND u.disabled = 0 AND u.role >= 40`,
 		)

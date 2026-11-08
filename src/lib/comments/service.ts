@@ -69,6 +69,7 @@ export async function checkCommentable(
 	}
 	const content = await db
 		.prepare(
+			// eslint-disable-next-line no-restricted-syntax -- table name is a constant; contentId is bound below
 			`SELECT id, published_at FROM ec_${COMMENT_COLLECTION}
 			 WHERE id = ? AND status = 'published' AND deleted_at IS NULL`,
 		)

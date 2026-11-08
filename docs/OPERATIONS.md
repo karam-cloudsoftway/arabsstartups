@@ -95,11 +95,15 @@ contain a link, never the message, at most one per 15 minutes.
    application), `TURNSTILE_SECRET_KEY`, `RESEND_API_KEY`; review the audit log
    and CMS → Audit History for content changes; restore content with Time
    Travel if needed.
-4. Note what happened and when in a short incident record.
+4. If a GitHub or Cloudflare account was affected: delete the CI deploy token
+   (Cloudflare → Account API Tokens), create a new one ([CI_CD.md](CI_CD.md)
+   step 8), and review the GitHub organisation audit log and recent workflow runs.
+5. Note what happened and when in a short incident record.
 
 ## Updating the CMS
 
-EmDash is pinned to an exact version in `package.json`. To update: read the
-release notes, bump the version on a branch, `npm ci && npm run check &&
-npm run test:e2e`, deploy to staging, test sign-in, comments and the inbox,
-then production.
+EmDash is pinned to an exact version in `package.json`. Dependabot opens the
+update pull request and CI runs every check on it. Then: read the release
+notes, deploy to staging, test sign-in, comments and the inbox, then
+production. To update by hand: bump the version on a branch,
+`npm ci && npm run check && npm run test:e2e`, then the same staging steps.

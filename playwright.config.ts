@@ -6,6 +6,8 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
 	testDir: "tests/e2e",
+	// A stray test.only must fail CI instead of silently skipping the rest.
+	forbidOnly: !!process.env.CI,
 	fullyParallel: false,
 	workers: 1,
 	// Form tests use Cloudflare's live Turnstile service (test keys); allow one
@@ -28,7 +30,8 @@ export default defineConfig({
 	webServer: {
 		command: "node node_modules/astro/bin/astro.mjs dev",
 		url: "http://localhost:4321/healthz",
-		reuseExistingServer: true,
+		// Locally, reuse a running `npm run dev`. CI always starts its own server.
+		reuseExistingServer: !process.env.CI,
 		timeout: 180_000,
 	},
 });

@@ -38,17 +38,22 @@ production builds.
 ## Tests
 
 ```bash
+npm run lint               # code quality, accessibility and project rules
 npm run typecheck          # 0 errors expected
 npm test                   # unit tests
 npm run test:e2e           # browser tests (desktop + mobile)
-npx playwright test -c playwright.prod.config.ts   # production-build security tests
+npm run test:prod          # production-build security tests (stop `npm run dev` first)
 ```
+
+GitHub Actions runs all of these on every pull request, plus secret, workflow
+and static-analysis scans: [docs/CI_CD.md](docs/CI_CD.md).
 
 ## Deploy
 
-See [docs/RUNBOOK.md](docs/RUNBOOK.md) for the one-time Cloudflare setup and
+See [docs/RUNBOOK.md](docs/RUNBOOK.md) for the one-time Cloudflare setup,
+[docs/CI_CD.md](docs/CI_CD.md) for GitHub setup and deploys from Actions, and
 [docs/OPERATIONS.md](docs/OPERATIONS.md) for staff changes, backups and
-incidents. Deploys: `npm run deploy:staging`, then `npm run deploy:production`.
+incidents. From a laptop: `npm run deploy:staging`, then `npm run deploy:production`.
 
 ## Project docs
 

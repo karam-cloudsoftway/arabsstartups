@@ -1,0 +1,39 @@
+# Dependency update pull requests (free on every GitHub plan).
+# Security fixes are opened as soon as GitHub knows about them; the cooldown
+# below only delays routine version bumps, so brand-new releases (the riskiest
+# moment for a hijacked package) have time to be checked by others first.
+# Explanation: docs/CI_CD.md → "Dependency updates".
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 3
+    groups:
+      # EmDash packages are released together and must move together.
+      emdash:
+        patterns:
+          - "emdash"
+          - "@emdash-cms/*"
+    commit-message:
+      prefix: "deps"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "ci"

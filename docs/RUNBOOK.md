@@ -11,7 +11,7 @@ billing, repositories and mailboxes.
 |---|---|
 | Cloudflare account owned by Arabs Startups | Workers **Paid** plan (~$5/month) is recommended (Free has a 10 ms CPU limit per request). |
 | `arabsstartups.com` added to that account as a zone | Required for the custom domain. |
-| A GitHub organisation/repo owned by Arabs Startups | For code, reviews and CI. |
+| A GitHub organisation/repo owned by Arabs Startups | For code, reviews and CI. The plan decides how well deploys are protected: [CI_CD.md §3](CI_CD.md#3-before-you-start-pick-the-github-plan). |
 | MFA on every admin mailbox, Cloudflare and GitHub account | Email one-time PIN is only as safe as the mailbox. |
 | Node 24 LTS and `npm ci` | Locally or in CI. |
 
@@ -28,7 +28,9 @@ npx wrangler r2 bucket create arabsstartups-backups      # PRIVATE — never giv
 ```
 
 Add each printed `database_id` to the matching `d1_databases` entry in
-`wrangler.jsonc` (`env.staging` and `env.production`).
+`wrangler.jsonc` (`env.staging` and `env.production`). `scripts/predeploy.mjs`
+refuses to deploy without it, because a deploy with no id could create a new,
+empty database.
 
 ## 2. Turnstile (spam protection)
 
@@ -58,6 +60,14 @@ Add each printed `database_id` to the matching `d1_databases` entry in
    This path only serves uploaded editorial media (EmDash refuses backup keys
    there). Do not bypass any other `/_emdash` path.
 
+6. Staging: right after the first staging deploy (§5), open Workers & Pages →
+   `arabsstartups-staging` → Settings → Domains & Routes and choose **Enable
+   Cloudflare Access** for workers.dev. Edit the new Access application: One-time
+   PIN only, the same named emails. Store its audience tag:
+   `npx wrangler secret put CF_ACCESS_AUDIENCE --env staging`.
+   The whole staging site is then private, which also keeps test content out of
+   search engines. The CI smoke test recognises a fully private site.
+
 The site also checks the Access token itself on every `/_emdash` and
 `/newsroom` request (src/middleware/outer.ts). If step 2 is ever misconfigured,
 those paths answer `403` instead of opening up.
@@ -81,10 +91,13 @@ newsroom inbox — the inbox holds website form messages only.
 
 ```bash
 npm ci
-npm run check                 # type check + unit tests + build
+npm run check                 # lint + type check + unit tests + build
 npm run test:e2e              # browser tests against local dev
 npm run deploy:staging        # builds for staging, runs safety checks, deploys
 ```
+
+This first deploy creates the Worker, so it runs from the owner's laptop. Later
+deploys can run from GitHub Actions: see [CI_CD.md](CI_CD.md).
 
 `scripts/predeploy.mjs` refuses to deploy placeholder values, Turnstile TEST
 keys, an empty hostname list, or the local-dev configuration, and deletes the

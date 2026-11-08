@@ -6,6 +6,7 @@
  */
 
 // C0/C1 control characters except tab and newline.
+// eslint-disable-next-line no-control-regex -- matching control characters is the point
 const CONTROL_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g;
 // Bidi embeddings/overrides can visually reorder text (spoofing). Isolates and
 // LRM/RLM marks stay: Arabic writers legitimately use them.

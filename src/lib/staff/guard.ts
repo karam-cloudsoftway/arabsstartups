@@ -44,7 +44,7 @@ export async function authorizeStaff(
 	lookup: StaffLookup,
 	permission: NewsroomPermission,
 ): Promise<StaffDecision> {
-	let user: StaffUser | null = null;
+	let user: StaffUser | null;
 	let identity: AccessIdentity | null = null;
 
 	if (facts.production) {

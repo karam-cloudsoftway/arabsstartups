@@ -137,12 +137,15 @@ export async function listInquiries(
 	const { sql, params } = whereClause(filter);
 	const limit = Math.min(Math.max(filter.limit ?? 25, 1), 100);
 	const offset = Math.max(filter.offset ?? 0, 0);
+	// whereClause() returns fixed SQL fragments with ? placeholders; every value is in `params`.
 	const [rows, count] = await Promise.all([
 		db
+			// eslint-disable-next-line no-restricted-syntax -- fixed fragments only, values bound
 			.prepare(`SELECT ${LIST_COLUMNS} FROM as_inquiries ${sql} ORDER BY created_at DESC LIMIT ? OFFSET ?`)
 			.bind(...params, limit, offset)
 			.all<Inquiry>(),
 		db
+			// eslint-disable-next-line no-restricted-syntax -- fixed fragments only, values bound
 			.prepare(`SELECT COUNT(*) AS total FROM as_inquiries ${sql}`)
 			.bind(...params)
 			.first<{ total: number }>(),
@@ -153,6 +156,7 @@ export async function listInquiries(
 export async function exportInquiries(db: SqlDb, filter: InquiryFilter): Promise<Inquiry[]> {
 	const { sql, params } = whereClause(filter);
 	const { results } = await db
+		// eslint-disable-next-line no-restricted-syntax -- fixed fragments only, values bound
 		.prepare(`SELECT * FROM as_inquiries ${sql} ORDER BY created_at DESC LIMIT 5000`)
 		.bind(...params)
 		.all<Inquiry>();

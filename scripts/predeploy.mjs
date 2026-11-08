@@ -32,6 +32,11 @@ if (config.name !== EXPECTED[target]) {
 
 const vars = config.vars ?? {};
 const problems = [];
+// Without an explicit id, wrangler may create a brand-new EMPTY database on deploy.
+for (const db of config.d1_databases ?? []) {
+	if (!db.database_id) problems.push(`D1 binding ${db.binding} has no database_id (RUNBOOK §1)`);
+}
+if (config.preview_urls !== false) problems.push("preview_urls must be false (one public address per environment)");
 for (const [name, value] of Object.entries(vars)) {
 	if (String(value).includes("CHANGE-ME")) problems.push(`${name} still contains CHANGE-ME`);
 }
@@ -46,7 +51,7 @@ if (!/^[a-z0-9-]+\.cloudflareaccess\.com$/.test(String(vars.CF_ACCESS_TEAM_DOMAI
 }
 if (!String(vars.EMDASH_SITE_URL ?? "").startsWith("https://")) problems.push("EMDASH_SITE_URL must be https://");
 
-if (problems.length > 0) fail(`fix wrangler.jsonc env.${target}.vars:\n  - ${problems.join("\n  - ")}`);
+if (problems.length > 0) fail(`fix wrangler.jsonc env.${target}:\n  - ${problems.join("\n  - ")}`);
 
 console.log(`✔ predeploy: ${config.name} looks ready.`);
 console.log(

@@ -33,6 +33,12 @@ seed/seed.json             CMS schema + starter content (built by scripts/build-
 tests/unit                 Vitest, real SQLite via node:sqlite
 tests/e2e                  Playwright against `astro dev`
 tests/prod                 Playwright against the production build (`astro preview`)
+scripts/predeploy.mjs      refuses unsafe deploy configs; removes local secrets from the build
+scripts/smoke-test.mjs     checks the live site after each deploy
+scripts/check-lockfile.mjs every package from the npm registry with an integrity hash
+eslint.config.mjs          lint rules, including AGENTS.md rules 4, 5 and 7
+.github/workflows/ci.yml   checks on every change; manual deploys (docs/CI_CD.md)
+.github/dependabot.yml     weekly dependency and action updates, with a cooldown
 ```
 
 ## Request flows

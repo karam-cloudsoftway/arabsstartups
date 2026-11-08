@@ -18,6 +18,8 @@
 		"staging": {
 			"name": "arabsstartups-staging",
 			"workers_dev": true,
+			// No per-version *.workers.dev copies of the site: one address per environment.
+			"preview_urls": false,
 			"observability": { "enabled": true },
 			"d1_databases": [{ "binding": "DB", "database_name": "arabsstartups-staging" }],
 			"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "arabsstartups-media-staging" }],
@@ -39,6 +41,7 @@
 		"production": {
 			"name": "arabsstartups",
 			"workers_dev": false,
+			"preview_urls": false,
 			"observability": { "enabled": true },
 			"d1_databases": [{ "binding": "DB", "database_name": "arabsstartups-prod" }],
 			// Public media only. Backups go to a SEPARATE private bucket (see docs/BACKUP_RESTORE.md).

@@ -12,14 +12,19 @@ This plan turns those three documents into a step-by-step build. It is written i
 
 | Phase | Code | Needs the company's Cloudflare account |
 |---|---|---|
-| 0 Setup | Done: repo layout, pinned stack, staging + production config, CI, deploy safety check | Create account, D1/R2, add `arabsstartups.com` zone |
+| 0 Setup | Done: repo layout, pinned stack, staging + production config, deploy safety check, CI/CD with quality and security checks and a post-deploy smoke test (`docs/CI_CD.md`) | Create account, D1/R2, add `arabsstartups.com` zone; GitHub org, plan choice and repo settings (`docs/CI_CD.md` §3–4) |
 | A Prove it | Done and tested locally: EmDash CMS, Access sign-in wiring, origin-side token check, safe comment path | Turn on one-time PIN, create the Access app, set secrets |
 | B The site | Done: Arabic + English pages, articles, episodes, search, RSS, sitemap, SEO, dark mode, mobile | — |
 | C Engagement | Done: moderated comments, editorial replies, contact inbox, alerts, audit log, team page | Resend key for outgoing email (optional) |
 | D Harden | Done: security tests, headers/CSP, retention, backup script, runbooks | Deploy staging → production, first admin bootstrap, restore drill |
 
 How to finish launch: `docs/RUNBOOK.md`. Daily work, staff changes, backups: `docs/OPERATIONS.md`.
-Security controls and their tests: `docs/SECURITY.md`.
+Security controls and their tests: `docs/SECURITY.md`. Pipeline setup and deploys: `docs/CI_CD.md`.
+
+Open decision: §7 keeps all secrets out of GitHub, but deploying from GitHub
+Actions needs one Cloudflare deploy token there. Either allow that one token
+(stored so only `main` can use it), or keep deploying from a trusted laptop.
+See `docs/CI_CD.md` §3.
 
 ---
 

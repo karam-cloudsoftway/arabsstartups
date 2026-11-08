@@ -31,7 +31,7 @@ export function toEmbed(raw: string | null | undefined, title = ""): Embed | nul
 	const host = url.hostname.replace(/^www\.|^m\./, "");
 
 	if (host === "youtube.com" || host === "youtu.be" || host === "youtube-nocookie.com") {
-		let id: string | null = null;
+		let id: string | null;
 		if (host === "youtu.be") id = url.pathname.slice(1);
 		else if (url.pathname === "/watch") id = url.searchParams.get("v");
 		else {
