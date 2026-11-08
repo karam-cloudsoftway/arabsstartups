@@ -3,18 +3,18 @@
  * Pre-deploy safety check. Run after `CLOUDFLARE_ENV=<env> astro build`.
  *  - removes dist/server/.dev.vars (local secrets copied by the build)
  *  - refuses to deploy the local-dev config, placeholder values or test keys
- * Usage: node scripts/predeploy.mjs <staging|production>
+ * Usage: node scripts/predeploy.mjs production   (the only environment)
  */
 import { existsSync, readFileSync, rmSync } from "node:fs";
 
 const target = process.argv[2];
-const EXPECTED = { staging: "arabsstartups-staging", production: "arabsstartups" };
+const EXPECTED = { production: "arabsstartups" };
 const fail = (message) => {
 	console.error(`\n✖ predeploy: ${message}\n`);
 	process.exit(1);
 };
 
-if (!EXPECTED[target]) fail("pass the target environment: staging or production");
+if (!EXPECTED[target]) fail("pass the target environment: production");
 
 const devVars = new URL("../dist/server/.dev.vars", import.meta.url);
 if (existsSync(devVars)) {
@@ -34,7 +34,7 @@ const vars = config.vars ?? {};
 const problems = [];
 // Without an explicit id, wrangler may create a brand-new EMPTY database on deploy.
 for (const db of config.d1_databases ?? []) {
-	if (!db.database_id) problems.push(`D1 binding ${db.binding} has no database_id (RUNBOOK §1)`);
+	if (!db.database_id) problems.push(`D1 binding ${db.binding} has no database_id (RUNBOOK §2)`);
 }
 if (config.preview_urls !== false) problems.push("preview_urls must be false (one public address per environment)");
 for (const [name, value] of Object.entries(vars)) {

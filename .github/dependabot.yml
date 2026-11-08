@@ -2,7 +2,7 @@
 # Security fixes are opened as soon as GitHub knows about them; the cooldown
 # below only delays routine version bumps, so brand-new releases (the riskiest
 # moment for a hijacked package) have time to be checked by others first.
-# Explanation: docs/CI_CD.md → "Dependency updates".
+# Explanation: docs/CI_CD.md §6 "Keeping it healthy".
 version: 2
 updates:
   - package-ecosystem: npm
@@ -18,11 +18,20 @@ updates:
       semver-minor-days: 7
       semver-patch-days: 3
     groups:
-      # EmDash packages are released together and must move together.
+      # Packages that are released together and must move together.
       emdash:
         patterns:
           - "emdash"
           - "@emdash-cms/*"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+    ignore:
+      # TypeScript 7 is not yet supported by typescript-eslint or @astrojs/check.
+      # Remove this once both list TypeScript 7 in their peer ranges.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: "deps"
 

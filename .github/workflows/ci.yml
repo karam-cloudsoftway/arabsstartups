@@ -1,9 +1,9 @@
 # CI/CD for arabsstartups.com
 #
 # Every pull request and every push to main runs four check jobs in parallel.
-# A deploy happens only when a person starts this workflow by hand
-# (Actions → CI → Run workflow) and picks a target. It runs after every
-# check has passed on that same commit. Production deploys only from main.
+# There is one environment: production. A deploy happens only when a person
+# starts this workflow by hand (Actions → CI → Run workflow → production), from
+# main, after every check has passed on that same commit.
 #
 # Setup steps and the reasons behind each choice: docs/CI_CD.md
 name: CI
@@ -18,9 +18,9 @@ on:
   workflow_dispatch:
     inputs:
       deploy:
-        description: "Deploy after all checks pass (production only from main)"
+        description: "Deploy to production after all checks pass (from main only)"
         type: choice
-        options: [none, staging, production]
+        options: [none, production]
         default: none
 
 # Nothing by default. Each job asks for the least it needs.
@@ -180,30 +180,24 @@ jobs:
           retention-days: 7
 
   deploy:
-    name: Deploy to ${{ inputs.deploy }}
+    name: Deploy to production
     needs: [quality, security, sast, browser-tests]
-    if: github.event_name == 'workflow_dispatch' && inputs.deploy != 'none'
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy == 'production'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
       contents: read
     environment:
-      name: ${{ inputs.deploy }}
+      name: production
       url: ${{ steps.smoke.outputs.site_url }}
     concurrency:
-      # One deploy per target at a time. A second one waits; it never interrupts.
-      group: deploy-${{ inputs.deploy }}
+      # One deploy at a time. A second one waits; it never interrupts.
+      group: deploy-production
       cancel-in-progress: false
-    env:
-      TARGET: ${{ inputs.deploy }}
     steps:
-      - name: Production deploys only from main
+      - name: Deploy only from main
         run: |
-          case "$TARGET" in
-            staging | production) ;;
-            *) echo "::error::Unknown deploy target '$TARGET'."; exit 1 ;;
-          esac
-          if [[ "$TARGET" == production && "$GITHUB_REF" != refs/heads/main ]]; then
+          if [[ "$GITHUB_REF" != refs/heads/main ]]; then
             echo "::error::Production deploys run from main only. This run is on $GITHUB_REF."
             exit 1
           fi
@@ -217,10 +211,10 @@ jobs:
           package-manager-cache: false
       - name: Install exact versions from package-lock.json
         run: npm ci
-      - name: Build for ${{ inputs.deploy }}
-        run: npm run "build:${TARGET}"
+      - name: Build for production
+        run: npm run build:production
       - name: Pre-deploy safety checks
-        run: node scripts/predeploy.mjs "$TARGET"
+        run: node scripts/predeploy.mjs production
       - name: Deploy to Cloudflare (the only step that sees the token)
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -234,9 +228,8 @@ jobs:
         env:
           JOB_STATUS: ${{ job.status }}
         run: |
-          if [[ "$TARGET" == production ]]; then worker=arabsstartups; else worker=arabsstartups-staging; fi
           {
-            echo "### Deploy to ${TARGET}: ${JOB_STATUS}"
+            echo "### Deploy to production: ${JOB_STATUS}"
             echo "- Commit: \`${GITHUB_SHA:0:12}\`"
-            echo "- Roll back: \`npx wrangler rollback --name ${worker}\`, or Cloudflare → Workers & Pages → ${worker} → Deployments."
+            echo "- Roll back: \`npx wrangler rollback --name arabsstartups\`, or Cloudflare → Workers & Pages → arabsstartups → Deployments."
           } >> "$GITHUB_STEP_SUMMARY"

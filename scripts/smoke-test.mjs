@@ -8,8 +8,8 @@
  *   node scripts/smoke-test.mjs https://arabsstartups.com
  *
  * Without an argument the URL is vars.EMDASH_SITE_URL from dist/server/wrangler.json.
- * A site that is entirely behind Cloudflare Access (recommended for staging)
- * passes when every path sends visitors to the Access sign-in page.
+ * A site that is entirely behind Cloudflare Access (the pre-launch lock,
+ * RUNBOOK §4) passes when every path sends visitors to the Access sign-in page.
  * Exits 1 when any check fails. In GitHub Actions it also writes the results to
  * the job summary and sets the `site_url` output.
  */

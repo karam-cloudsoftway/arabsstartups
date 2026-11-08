@@ -12,19 +12,18 @@ This plan turns those three documents into a step-by-step build. It is written i
 
 | Phase | Code | Needs the company's Cloudflare account |
 |---|---|---|
-| 0 Setup | Done: repo layout, pinned stack, staging + production config, deploy safety check, CI/CD with quality and security checks and a post-deploy smoke test (`docs/CI_CD.md`) | Create account, D1/R2, add `arabsstartups.com` zone; GitHub org, plan choice and repo settings (`docs/CI_CD.md` §3–4) |
+| 0 Setup | Done: repo layout, pinned stack, production config (the only environment), deploy safety check, CI/CD with quality and security checks and a post-deploy smoke test (`docs/CI_CD.md`) | Create account, D1/R2, add `arabsstartups.com` zone; GitHub org, plan choice and repo settings (`docs/CI_CD.md` §3–4) |
 | A Prove it | Done and tested locally: EmDash CMS, Access sign-in wiring, origin-side token check, safe comment path | Turn on one-time PIN, create the Access app, set secrets |
 | B The site | Done: Arabic + English pages, articles, episodes, search, RSS, sitemap, SEO, dark mode, mobile | — |
 | C Engagement | Done: moderated comments, editorial replies, contact inbox, alerts, audit log, team page | Resend key for outgoing email (optional) |
-| D Harden | Done: security tests, headers/CSP, retention, backup script, runbooks | Deploy staging → production, first admin bootstrap, restore drill |
+| D Harden | Done: security tests, headers/CSP, retention, backup script, runbooks | Deploy production behind the pre-launch lock, first admin bootstrap, tests on the locked site, launch, restore drill |
 
 How to finish launch: `docs/RUNBOOK.md`. Daily work, staff changes, backups: `docs/OPERATIONS.md`.
 Security controls and their tests: `docs/SECURITY.md`. Pipeline setup and deploys: `docs/CI_CD.md`.
 
-Open decision: §7 keeps all secrets out of GitHub, but deploying from GitHub
-Actions needs one Cloudflare deploy token there. Either allow that one token
-(stored so only `main` can use it), or keep deploying from a trusted laptop.
-See `docs/CI_CD.md` §3.
+Deploys: default is a trusted laptop (`npm run deploy:production`), so no
+Cloudflare token is stored in GitHub and §7 holds as written. Deploying from
+GitHub Actions stays possible later; see `docs/CI_CD.md` §3.
 
 ---
 
@@ -130,6 +129,7 @@ About **$5/month** baseline (Cloudflare paid plan), plus domain renewal and poss
 3. **Brand colors** — use the "Slash" PDF set now: `#000012`, `#FFFFFF`, `#4B3BFF`. Confirm at brand Stage 2. ✓
 4. **Hub63 relationship** — **no link at all.** Arabs Startups is presented as fully independent. No Hub63 mention anywhere on the site. Keep accounts, billing, repo, and email fully separate. ✓
 5. **Staff management** — simple two-step add/remove at launch (section 7); one-screen panel later only if needed. ✓
+6. **Environments** (8 Nov 2026) — **production only, no staging.** Automated tests run on a laptop and in CI with separate throwaway data. The live site starts behind a pre-launch sign-in lock for manual checks, then opens on launch day. Bad deploys are undone with `wrangler rollback`. This replaces the spec's staging requirement. ✓
 
 ---
 
@@ -234,7 +234,7 @@ How the site is built, so it stays safe, fast, and easy to change. Written for w
 
 ### 8.6 Safe delivery
 - Every change is reviewed before it reaches the live site.
-- **Separate staging and live**, each with its own data and keys.
+- **Separate test and live data.** Tests use throwaway local data; only production exists in Cloudflare (decision 6).
 - Ship in small steps; be able to undo fast.
 - Secrets live only in Cloudflare's runtime vault.
 

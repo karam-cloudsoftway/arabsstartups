@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 /**
  * Off-site database backup: export D1 to SQL and upload it to the PRIVATE
- * backups bucket.   node scripts/backup.mjs <staging|production>
+ * backups bucket.   node scripts/backup.mjs production
  * Requires `wrangler login` (or CLOUDFLARE_API_TOKEN with D1 + R2 rights).
  */
 import { execFileSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
 
-const DATABASES = { staging: "arabsstartups-staging", production: "arabsstartups-prod" };
+const DATABASES = { production: "arabsstartups-prod" };
 const BUCKET = "arabsstartups-backups";
 const target = process.argv[2];
 if (!DATABASES[target]) {
-	console.error("usage: node scripts/backup.mjs <staging|production>");
+	console.error("usage: node scripts/backup.mjs production");
 	process.exit(1);
 }
 

@@ -53,7 +53,8 @@ and static-analysis scans: [docs/CI_CD.md](docs/CI_CD.md).
 See [docs/RUNBOOK.md](docs/RUNBOOK.md) for the one-time Cloudflare setup,
 [docs/CI_CD.md](docs/CI_CD.md) for GitHub setup and deploys from Actions, and
 [docs/OPERATIONS.md](docs/OPERATIONS.md) for staff changes, backups and
-incidents. From a laptop: `npm run deploy:staging`, then `npm run deploy:production`.
+incidents. There is one environment, production. Deploy from a laptop:
+`npm run deploy:production`.
 
 ## Project docs
 

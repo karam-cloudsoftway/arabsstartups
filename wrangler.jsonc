@@ -1,8 +1,9 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	// Top level = LOCAL DEVELOPMENT only (`npm run dev`). Real deployments use
-	// a named environment: `--env staging` or `--env production`. Each one has
-	// its OWN database, bucket and secrets. Never share data between them.
+	// Top level = LOCAL DEVELOPMENT and tests only (`npm run dev`, CI). Nothing
+	// here is ever deployed; its data lives on the laptop (.wrangler/state).
+	// The ONLY real environment is `env.production` (decided 8 Nov 2026:
+	// production only, no staging). Build it with CLOUDFLARE_ENV=production.
 	"name": "arabsstartups-local",
 	"main": "./src/worker.ts",
 	"compatibility_date": "2026-02-24",
@@ -15,36 +16,15 @@
 		"INQUIRY_RETENTION_DAYS": "365",
 	},
 	"env": {
-		"staging": {
-			"name": "arabsstartups-staging",
-			"workers_dev": true,
-			// No per-version *.workers.dev copies of the site: one address per environment.
-			"preview_urls": false,
-			"observability": { "enabled": true },
-			"d1_databases": [{ "binding": "DB", "database_name": "arabsstartups-staging" }],
-			"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "arabsstartups-media-staging" }],
-			"triggers": { "crons": ["* * * * *"] },
-			// Secrets (wrangler secret put <NAME> --env staging):
-			//   EMDASH_ENCRYPTION_KEY, CF_ACCESS_AUDIENCE, TURNSTILE_SECRET_KEY, RESEND_API_KEY
-			"vars": {
-				"EMDASH_SITE_URL": "https://arabsstartups-staging.CHANGE-ME.workers.dev",
-				"CF_ACCESS_TEAM_DOMAIN": "arabsstartups.cloudflareaccess.com",
-				"PUBLIC_TURNSTILE_SITE_KEY": "CHANGE-ME",
-				"TURNSTILE_ALLOWED_HOSTNAMES": "arabsstartups-staging.CHANGE-ME.workers.dev",
-				"MAIL_FROM": "Arabs Startups Staging <hello@arabsstartups.com>",
-				"MAIL_REPLY_TO": "hello@arabsstartups.com",
-				"EDITORIAL_ALERT_EMAIL": "",
-				"INQUIRY_RETENTION_DAYS": "30",
-				"PUBLIC_CF_BEACON_TOKEN": "",
-			},
-		},
 		"production": {
 			"name": "arabsstartups",
 			"workers_dev": false,
+			// One public address only: no *.workers.dev copies of the site.
 			"preview_urls": false,
 			"observability": { "enabled": true },
+			// database_id: printed by `npx wrangler d1 create arabsstartups-prod` (RUNBOOK §2).
 			"d1_databases": [{ "binding": "DB", "database_name": "arabsstartups-prod" }],
-			// Public media only. Backups go to a SEPARATE private bucket (see docs/BACKUP_RESTORE.md).
+			// Public media only. Backups go to a SEPARATE private bucket (docs/OPERATIONS.md → Backups).
 			"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "arabsstartups-media-prod" }],
 			"triggers": { "crons": ["* * * * *"] },
 			"routes": [

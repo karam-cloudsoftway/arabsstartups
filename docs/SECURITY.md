@@ -21,7 +21,7 @@ Visitor ──► Cloudflare edge ──► Worker (Astro + EmDash)
 
 | Control | Where | Test |
 |---|---|---|
-| Staff sign in only by emailed one-time PIN; no passwords, no sign-up | Cloudflare Access + `access()` in astro.config.mjs | manual (RUNBOOK §3) |
+| Staff sign in only by emailed one-time PIN; no passwords, no sign-up | Cloudflare Access + `access()` in astro.config.mjs | manual (RUNBOOK §4) |
 | Origin re-verifies the Access JWT on every protected request (fail closed) | src/middleware/outer.ts, src/lib/security/access-jwt.ts | tests/unit/access-jwt.test.ts, tests/prod |
 | Unfinished setup wizard cannot be hijacked | same gate covers /_emdash/admin/setup and /_emdash/api/setup | tests/prod |
 | New staff start as Contributor; roles never synced from the IdP | `defaultRole: 20`, `syncRoles: false` | — |

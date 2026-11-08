@@ -25,9 +25,7 @@
     "check:lockfile": "node scripts/check-lockfile.mjs",
     "smoke": "node scripts/smoke-test.mjs",
     "seed:build": "node scripts/build-seed.mjs",
-    "build:staging": "CLOUDFLARE_ENV=staging astro build",
     "build:production": "CLOUDFLARE_ENV=production astro build",
-    "deploy:staging": "npm run build:staging && node scripts/predeploy.mjs staging && wrangler deploy",
     "deploy:production": "npm run build:production && node scripts/predeploy.mjs production && wrangler deploy",
     "secrets:generate": "emdash secrets generate"
   },

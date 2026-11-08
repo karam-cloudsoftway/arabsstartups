@@ -74,10 +74,14 @@ contain a link, never the message, at most one per 15 minutes.
 - **Media:** R2 objects are durable; for an off-site copy use
   `rclone sync` from `arabsstartups-media-prod` to private storage weekly.
 - **Keys:** keep `EMDASH_ENCRYPTION_KEY` with the backups (password manager).
-- **Restore drill — every quarter:** create a scratch D1 database, import the
-  latest export (`npx wrangler d1 execute <scratch> --remote --file=<export.sql>`),
-  point a staging deploy at it, check articles, comments and the inbox, then
-  delete the scratch database. Write the date in the audit notes.
+- **Restore drill — every quarter:** create a scratch D1 database
+  (`npx wrangler d1 create arabsstartups-restore-drill`), import the latest
+  export (`npx wrangler d1 execute arabsstartups-restore-drill --remote --file=<export.sql>`),
+  count the rows of articles, comments and contact messages
+  (`npx wrangler d1 execute arabsstartups-restore-drill --remote --command "SELECT COUNT(*) FROM as_inquiries"`),
+  compare them with production, then delete the scratch database
+  (`npx wrangler d1 delete arabsstartups-restore-drill`). The production
+  database is never touched. Write the date in the audit notes.
 
 ## Monitoring
 
@@ -103,7 +107,10 @@ contain a link, never the message, at most one per 15 minutes.
 ## Updating the CMS
 
 EmDash is pinned to an exact version in `package.json`. Dependabot opens the
-update pull request and CI runs every check on it. Then: read the release
-notes, deploy to staging, test sign-in, comments and the inbox, then
-production. To update by hand: bump the version on a branch,
-`npm ci && npm run check && npm run test:e2e`, then the same staging steps.
+update pull request and CI runs every check on it. There is no staging site,
+so: read the release notes, merge only when CI is green, deploy
+(`npm run deploy:production`), then right away sign in, open the newsroom,
+post and approve a test comment, and send a test contact message. If anything
+breaks: `npx wrangler rollback --name arabsstartups`. To update by hand: bump
+the version on a branch, `npm ci && npm run check && npm run test:e2e`, then
+the same steps.
