@@ -34,7 +34,7 @@
     "@astrojs/react": "7.1.4",
     "@emdash-cms/cloudflare": "1.4.0",
     "@emdash-cms/plugin-audit-log": "0.2.3",
-    "astro": "7.4.7",
+    "astro": "7.4.11",
     "emdash": "1.4.0",
     "jose": "6.2.15",
     "react": "19.2.4",
