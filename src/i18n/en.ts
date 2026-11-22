@@ -188,6 +188,14 @@ export const en: typeof ar = {
 		submit: "Submit news",
 		rights: "All rights reserved.",
 		independent: "Independent editorial content.",
+		rss: "RSS feed",
+	},
+	feed: {
+		title: "Follow us by RSS",
+		intro: "RSS lets you follow our new articles in a news reader app, without visiting the site each time.",
+		how: "Copy this link and paste it into an app such as Feedly, Inoreader or NetNewsWire:",
+		note: "The feed has our 20 newest Arabic articles. Opening the link in a browser shows technical text; that is normal.",
+		open: "Open the feed",
 	},
 	page: {
 		draftNotice: "This page is under review.",

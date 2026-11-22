@@ -47,7 +47,17 @@ test.describe("public site", () => {
 		expect(JSON.parse(jsonLd ?? "{}")).toBeTruthy();
 		const rss = await request.get("/rss.xml");
 		expect(rss.headers()["content-type"]).toContain("application/rss+xml");
-		expect(await rss.text()).toContain("<language>ar</language>");
+		const feed = await rss.text();
+		expect(feed).toContain("<language>ar</language>");
+		expect(feed).toContain("<lastBuildDate>");
+		expect(feed).toMatch(/<category>[^<]+<\/category>/);
+		expect(feed).toMatch(/<dc:creator>[^<]+<\/dc:creator>/);
+		for (const link of [...feed.matchAll(/<item>.*?<link>https?:\/\/[^/]+([^<]+)<\/link>/g)].map((m) => m[1] ?? "/")) {
+			expect((await request.get(link)).status(), link).toBe(200);
+		}
+		await page.goto("/feed");
+		await expect(page.locator("h1")).toHaveText("تابعنا عبر RSS");
+		await expect(page.locator(".feed-url code")).toContainText("/rss.xml");
 		expect((await request.get("/sitemap.xml")).status()).toBe(200);
 	});
 

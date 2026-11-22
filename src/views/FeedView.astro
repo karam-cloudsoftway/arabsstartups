@@ -1,0 +1,42 @@
+---
+/** Explains the RSS feed to people; /rss.xml itself is for feed reader apps. */
+import Base from "../layouts/Base.astro";
+import { t, type Locale } from "../i18n";
+
+interface Props {
+	locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const feedUrl = new URL("/rss.xml", Astro.site ?? Astro.url.origin).href;
+---
+
+<Base title={dict.feed.title} description={dict.feed.intro} locale={locale}>
+	<section class="section">
+		<div class="container narrow">
+			<span class="slash-tag">RSS</span>
+			<h1 class="page-title">{dict.feed.title}</h1>
+			<div class="prose">
+				<p>{dict.feed.intro}</p>
+				<p>{dict.feed.how}</p>
+				<p class="feed-url"><code class="ltr" dir="ltr">{feedUrl}</code></p>
+				<p class="help">{dict.feed.note}</p>
+			</div>
+			<p class="feed-open"><a class="btn btn-secondary" href="/rss.xml" type="application/rss+xml">{dict.feed.open}</a></p>
+		</div>
+	</section>
+</Base>
+
+<style>
+	.feed-open {
+		margin-block-start: var(--space-lg);
+	}
+	.feed-url code {
+		display: inline-block;
+		padding: var(--space-sm) var(--space-md);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		background: var(--muted-bg);
+		overflow-wrap: anywhere;
+	}
+</style>

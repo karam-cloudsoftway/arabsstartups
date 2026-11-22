@@ -49,7 +49,7 @@ Pages (*الصفحات*) are for fixed pages at the site root (`/about`, `/priva
 The site links a page in the header, footer, contact page and comment form
 only while it is published, so an unpublished page never shows as a broken
 link. Do not give a page the address of a site section (`news`, `stories`,
-`contact`, `search`, `episodes`): the section wins and the page never shows.
+`contact`, `search`, `episodes`, `feed`): the section wins and the page never shows.
 
 Media: upload only licensed images. Videos and podcasts stay on YouTube /
 Spotify / LinkedIn / Vimeo / Apple Podcasts / SoundCloud — paste the link into an
