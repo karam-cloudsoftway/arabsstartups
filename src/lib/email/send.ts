@@ -4,7 +4,8 @@
  * Production uses Resend (RESEND_API_KEY). Without a key, production refuses
  * to send and the UI says so; local development writes to a dev outbox table
  * instead, so flows can be tested without a mail provider.
- * Messages are plain text, so no HTML can be injected into anyone's inbox.
+ * Messages are plain text plus an HTML version built by layout.ts, which
+ * escapes every value, so no HTML can be injected into anyone's inbox.
  */
 import { newId, nowIso, type SqlDb } from "../db/sql";
 
@@ -12,6 +13,8 @@ export interface OutboundEmail {
 	to: string;
 	subject: string;
 	text: string;
+	/** HTML version, built only by renderEmailHtml() (which escapes all text). */
+	html?: string;
 	replyTo?: string;
 }
 
@@ -52,6 +55,7 @@ export async function sendEmail(db: SqlDb, settings: MailSettings, email: Outbou
 					to: [to],
 					subject,
 					text: email.text,
+					...(email.html ? { html: email.html } : {}),
 					...(replyTo ? { reply_to: replyTo } : {}),
 				}),
 				signal: AbortSignal.timeout(10_000),
@@ -67,8 +71,8 @@ export async function sendEmail(db: SqlDb, settings: MailSettings, email: Outbou
 	if (settings.devOutbox) {
 		const id = newId();
 		await db
-			.prepare(`INSERT INTO as_dev_outbox (id, to_addr, subject, body, created_at) VALUES (?, ?, ?, ?, ?)`)
-			.bind(id, to, subject, email.text, nowIso())
+			.prepare(`INSERT INTO as_dev_outbox (id, to_addr, subject, body, html, created_at) VALUES (?, ?, ?, ?, ?, ?)`)
+			.bind(id, to, subject, email.text, email.html ?? null, nowIso())
 			.run();
 		return { ok: true, providerId: `dev-outbox:${id}` };
 	}

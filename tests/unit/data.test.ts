@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { listAudit, writeAudit } from "../../src/lib/audit/log";
 import { diffRoster, syncRoster } from "../../src/lib/audit/roster";
-import { applyMigrations, ensureSchema } from "../../src/lib/db/migrations";
+import { MIGRATIONS, applyMigrations, ensureSchema } from "../../src/lib/db/migrations";
 import { getHashSalt } from "../../src/lib/db/settings";
 import { toCsv, csvCell } from "../../src/lib/inbox/csv";
 import {
@@ -47,7 +47,7 @@ describe("migrations", () => {
 		await ensureSchema(db);
 		await ensureSchema(db);
 		const row = await db.prepare("SELECT COUNT(*) AS n FROM as_schema_migrations").first<{ n: number }>();
-		expect(row?.n).toBe(1);
+		expect(row?.n).toBe(MIGRATIONS.length);
 	});
 	it("enforce valid statuses at the database level", async () => {
 		const id = await createInquiry(db, sample, { retentionDays: 30 });

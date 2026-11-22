@@ -3,7 +3,7 @@ import Newsroom from "../../../layouts/Newsroom.astro";
 import { formatDate, t } from "../../../i18n";
 import { writeAudit } from "../../../lib/audit/log";
 import { getConfig } from "../../../lib/config";
-import { inquiryReplySubject, inquiryReplyText } from "../../../lib/email/templates";
+import { inquiryReplyHtml, inquiryReplySubject, inquiryReplyText } from "../../../lib/email/templates";
 import { isEmailConfigured, sendEmail } from "../../../lib/email/send";
 import { STATUS_LABELS } from "../../../lib/inbox/labels";
 import { addNote, assign, deleteInquiry, getInquiry, listNotes, markRead, setStatus } from "../../../lib/inbox/repo";
@@ -70,16 +70,18 @@ if (Astro.request.method === "POST") {
 		if (!isEmailConfigured(mail)) return Astro.redirect(`${self}?err=email_not_configured`, 303);
 		const config = getConfig();
 		const signature = inquiry.locale === "en" ? "Arabs Startups Editorial Team" : "فريق تحرير Arabs Startups";
+		const replyInput = {
+			reply: body,
+			signature,
+			originalSubject: inquiry.subject,
+			originalMessage: inquiry.message,
+			locale: inquiry.locale,
+		};
 		const result = await sendEmail(db, mail, {
 			to: inquiry.email,
 			subject: inquiryReplySubject(inquiry.subject),
-			text: inquiryReplyText({
-				reply: body,
-				signature,
-				originalSubject: inquiry.subject,
-				originalMessage: inquiry.message,
-				locale: inquiry.locale,
-			}),
+			text: inquiryReplyText(replyInput),
+			html: inquiryReplyHtml({ ...replyInput, origin: Astro.url.origin }),
 			replyTo: config.mailReplyTo || undefined,
 		});
 		if (!result.ok) {

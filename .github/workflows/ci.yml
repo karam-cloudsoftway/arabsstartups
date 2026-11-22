@@ -1,6 +1,9 @@
 # CI/CD for arabsstartups.com
 #
-# Every pull request and every push to main runs four check jobs in parallel.
+# Every pull request and every push to main runs the check jobs in parallel.
+# The browser tests run as three parallel parts (desktop, mobile, production
+# build), so the slowest part sets the pace instead of their sum.
+# "All checks passed" is the one check to require on main.
 # There is one environment: production. A deploy happens only when a person
 # starts this workflow by hand (Actions → CI → Run workflow → production), from
 # main, after every check has passed on that same commit.
@@ -39,6 +42,11 @@ defaults:
 env:
   ASTRO_TELEMETRY_DISABLED: "1"
   WRANGLER_SEND_METRICS: "false"
+  # npm installs: skip the audit and funding messages (audits run as their own
+  # step) and retry a slow registry more often before failing.
+  NPM_CONFIG_AUDIT: "false"
+  NPM_CONFIG_FUND: "false"
+  NPM_CONFIG_FETCH_RETRIES: "5"
   # Pinned scanner versions and checksums. Bump on purpose: docs/CI_CD.md → "Updating pinned tools".
   GITLEAKS_VERSION: "8.30.1"
   GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
@@ -136,11 +144,28 @@ jobs:
           --config p/javascript --config p/typescript --config p/nodejs --config p/secrets
 
   browser-tests:
-    name: Browser and production-build tests
+    name: ${{ matrix.name }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 20
     permissions:
       contents: read
+    strategy:
+      # Let every part finish, so one failure does not hide another.
+      fail-fast: false
+      matrix:
+        include:
+          - name: Browser tests (desktop)
+            id: desktop
+            script: test:e2e
+            project: desktop
+          - name: Browser tests (mobile)
+            id: mobile
+            script: test:e2e
+            project: mobile
+          - name: Production-build boundary tests
+            id: production-build
+            script: test:prod
+            project: ""
     env:
       # Cloudflare's public Turnstile TEST keys (they always pass). Never real keys in CI.
       PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
@@ -163,25 +188,56 @@ jobs:
             echo "TURNSTILE_SECRET_KEY=$TURNSTILE_SECRET_KEY"
             echo "TURNSTILE_ALLOWED_HOSTNAMES="
           } >> .env
-      - name: Install Chromium for Playwright
-        run: npx --no-install playwright install --with-deps chromium
-      - name: Browser tests (desktop and mobile)
-        run: npm run test:e2e
-      - name: Production-build boundary tests
-        run: npm run test:prod
+      - name: Install headless Chromium for Playwright
+        # The tests run headless, so the smaller headless shell is enough.
+        run: npx --no-install playwright install --with-deps --only-shell chromium
+      - name: Run the tests
+        env:
+          SCRIPT: ${{ matrix.script }}
+          PROJECT: ${{ matrix.project }}
+        run: |
+          if [[ -n "$PROJECT" ]]; then
+            npm run "$SCRIPT" -- --project="$PROJECT"
+          else
+            npm run "$SCRIPT"
+          fi
       - name: Keep the test report
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: playwright-report-attempt-${{ github.run_attempt }}
+          name: playwright-report-${{ matrix.id }}-attempt-${{ github.run_attempt }}
           path: |
             playwright-report
             test-results
+          if-no-files-found: ignore
           retention-days: 7
+
+  all-checks:
+    # The one required check for main (docs/CI_CD.md step 6), so check jobs can
+    # be renamed or split without touching the branch rules. It fails unless
+    # every check job succeeded; skipped or cancelled counts as failed.
+    name: All checks passed
+    needs: [quality, security, sast, browser-tests]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Every check job succeeded
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Results: $RESULTS"
+          for result in $RESULTS; do
+            if [[ "$result" != success ]]; then
+              echo "::error::At least one check did not succeed ($RESULTS)."
+              exit 1
+            fi
+          done
 
   deploy:
     name: Deploy to production
-    needs: [quality, security, sast, browser-tests]
+    needs: [quality, security, sast, browser-tests, all-checks]
     if: github.event_name == 'workflow_dispatch' && inputs.deploy == 'production'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -219,7 +275,13 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx --no-install wrangler deploy --message "commit ${GITHUB_SHA:0:12}, run ${GITHUB_RUN_ID}, by ${GITHUB_ACTOR}"
+        run: |
+          # A clear message instead of a bare wrangler error when the secrets are missing.
+          if [[ -z "$CLOUDFLARE_API_TOKEN" || -z "$CLOUDFLARE_ACCOUNT_ID" ]]; then
+            echo "::error::The production environment has no CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID secret. Add them (docs/CI_CD.md steps 7-8) or deploy from your machine (README → Deploy from your machine)."
+            exit 1
+          fi
+          npx --no-install wrangler deploy --message "commit ${GITHUB_SHA:0:12}, run ${GITHUB_RUN_ID}, by ${GITHUB_ACTOR}"
       - name: Smoke test the live site
         id: smoke
         run: node scripts/smoke-test.mjs

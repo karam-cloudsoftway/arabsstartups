@@ -50,11 +50,88 @@ and static-analysis scans: [docs/CI_CD.md](docs/CI_CD.md).
 
 ## Deploy
 
-See [docs/RUNBOOK.md](docs/RUNBOOK.md) for the one-time Cloudflare setup,
-[docs/CI_CD.md](docs/CI_CD.md) for GitHub setup and deploys from Actions, and
-[docs/OPERATIONS.md](docs/OPERATIONS.md) for staff changes, backups and
-incidents. There is one environment, production. Deploy from a laptop:
-`npm run deploy:production`.
+There is one environment: production (`arabsstartups.com`). Every deploy goes
+straight to the live site. You can deploy from your machine (below, the
+recommended way) or from GitHub Actions ([docs/CI_CD.md](docs/CI_CD.md)).
+[docs/RUNBOOK.md](docs/RUNBOOK.md) covers the one-time Cloudflare setup and
+[docs/OPERATIONS.md](docs/OPERATIONS.md) covers staff changes, backups and
+incidents.
+
+### Deploy from your machine
+
+#### Once per machine
+
+1. Finish the Cloudflare setup in [docs/RUNBOOK.md](docs/RUNBOOK.md) §0–5
+   (database, storage, Turnstile, Access, secrets). The very first deploy is
+   RUNBOOK §6.
+2. Install Node 24 (the version in `.node-version`), then check it:
+   `node --version`.
+3. Sign in to Cloudflare. A browser window opens; choose **Allow**.
+
+   ```bash
+   npx wrangler login
+   npx wrangler whoami     # must show the Arabs Startups account
+   ```
+
+   If `whoami` shows more than one account, the deploy asks which one to use.
+   Pick the Arabs Startups account.
+
+#### Every deploy
+
+1. Start from the latest `main`, with nothing uncommitted. The build uses the
+   files on disk, so uncommitted changes would go live without review.
+
+   ```bash
+   git switch main
+   git pull --ff-only
+   git status --short      # must print nothing
+   ```
+
+2. Check that GitHub Actions is green for this commit: the
+   **All checks passed** check on the latest `main` run. Do not deploy a red
+   commit.
+3. Install the exact package versions and run the quick checks:
+
+   ```bash
+   npm ci
+   npm run lint && npm run typecheck && npm test
+   ```
+
+4. If this release adds a database migration (a new entry in
+   `src/lib/db/migrations.ts`), write down the current time in UTC first
+   (`date -u +%Y-%m-%dT%H:%M:%SZ`). The migration runs on the first visit
+   after the deploy, and a code rollback does not undo it. With that time you
+   can restore the database (see "If something goes wrong").
+5. Build, run the safety checks and deploy, all in one command:
+
+   ```bash
+   npm run deploy:production
+   ```
+
+   It builds with the production settings, then `scripts/predeploy.mjs`
+   removes local secrets from the build and stops the deploy if it finds
+   placeholders, Turnstile test keys or a missing database id. Only then does
+   `wrangler deploy` upload the site.
+6. Check the live site. This takes about a minute:
+
+   ```bash
+   npm run smoke
+   ```
+
+   It checks that the site answers, sends its security headers, and that the
+   CMS admin, the newsroom and the dev helpers are closed to visitors. Every
+   line must show ✔.
+
+#### If something goes wrong
+
+| What you see | What to do |
+|---|---|
+| The smoke test fails, or the site is broken after the deploy | Roll back to the previous version: `npx wrangler rollback --name arabsstartups`. Or: Cloudflare → Workers & Pages → `arabsstartups` → Deployments → Rollback. |
+| The smoke test says **CMS admin is closed ✖ 200** | The CMS is open to the internet. Roll back first, then fix the Access application (RUNBOOK §4). |
+| A migration damaged data | Roll back the code, then restore the database to the time from step 4: `npx wrangler d1 time-travel restore arabsstartups-prod --timestamp=<time>` ([docs/OPERATIONS.md](docs/OPERATIONS.md) → Backups and restore). |
+| `predeploy: ... CHANGE-ME`, `has no database_id` or `TEST key` | The Cloudflare setup is not finished: RUNBOOK §2–3. Nothing was deployed. |
+| `Authentication error [code: 10000]` or `Not logged in` | Run `npx wrangler login` again and check `npx wrangler whoami`. |
+| `npm ci` says the lockfile is out of sync | Your Node version is wrong. Use Node 24, then run `npm ci` again. |
 
 ## Project docs
 

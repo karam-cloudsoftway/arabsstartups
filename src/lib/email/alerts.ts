@@ -14,6 +14,7 @@
 import { checkRateLimits } from "../security/rate-limit";
 import { nowIso, type SqlDb } from "../db/sql";
 import { ROLE } from "../staff/roles";
+import { renderEmailHtml } from "./layout";
 import { sendEmail, type MailSettings } from "./send";
 
 export type AlertKind = "inquiries" | "comments";
@@ -105,35 +106,59 @@ export async function alertRecipients(db: SqlDb, kind: AlertKind, fallback: stri
 	return (await alertRecipientList(db, kind, fallback)).map((recipient) => recipient.email);
 }
 
-function inquiryAlert(category: string | undefined, origin: string, canOpenInbox: boolean): { subject: string; text: string } {
+type AlertMessage = { subject: string; text: string; html: string };
+
+function inquiryAlert(category: string | undefined, origin: string, canOpenInbox: boolean): AlertMessage {
 	const isStory = !!category && STORY_CATEGORIES.has(category);
-	const label = (category && CATEGORY_LABELS[category]) || CATEGORY_LABELS.general;
+	const label = (category && CATEGORY_LABELS[category]) || "عام";
 	const subject = isStory ? "قصة أو خبر جديد في صندوق Arabs Startups" : "رسالة تواصل جديدة في صندوق Arabs Startups";
+	const intro = isStory ? "وصلت قصة أو خبر جديد عبر الموقع." : "وصلت رسالة جديدة عبر نموذج التواصل.";
+	const privacy = "لا يتضمّن هذا التنبيه نصّ الرسالة أو بيانات المرسل لحماية خصوصيته.";
+	const stop = canOpenInbox ? "يمكنك إيقاف هذه التنبيهات من صفحة غرفة الأخبار." : "لإيقاف هذه التنبيهات اطلب ذلك من مدير الموقع.";
+	const inbox = `${origin}/newsroom/inbox`;
 	const text = [
-		isStory ? "وصلت قصة أو خبر جديد عبر الموقع." : "وصلت رسالة جديدة عبر نموذج التواصل.",
+		intro,
 		`النوع: ${label}`,
 		"",
-		canOpenInbox
-			? `افتح صندوق الرسائل: ${origin}/newsroom/inbox`
-			: "يتولّى المحرّرون مراجعتها في صندوق الرسائل.",
+		canOpenInbox ? `افتح صندوق الرسائل: ${inbox}` : "يتولّى المحرّرون مراجعتها في صندوق الرسائل.",
 		"",
-		"لا يتضمّن هذا التنبيه نصّ الرسالة أو بيانات المرسل لحماية خصوصيته.",
-		canOpenInbox ? "يمكنك إيقاف هذه التنبيهات من صفحة غرفة الأخبار." : "لإيقاف هذه التنبيهات اطلب ذلك من مدير الموقع.",
+		privacy,
+		stop,
 	].join("\n");
-	return { subject, text };
+	const html = renderEmailHtml({
+		locale: "ar",
+		origin,
+		preheader: `${intro} النوع: ${label}`,
+		eyebrow: "تنبيه للفريق",
+		heading: isStory ? "قصة أو خبر جديد" : "رسالة تواصل جديدة",
+		blocks: [
+			{ kind: "text", text: intro },
+			...(canOpenInbox ? [] : [{ kind: "muted" as const, text: "يتولّى المحرّرون مراجعتها في صندوق الرسائل." }]),
+		],
+		facts: [{ label: "النوع", value: label }],
+		...(canOpenInbox ? { button: { label: "افتح صندوق الرسائل", href: inbox } } : {}),
+		footnote: `${privacy}\n${stop}`,
+	});
+	return { subject, text, html };
 }
 
-function commentAlert(origin: string): { subject: string; text: string } {
+function commentAlert(origin: string): AlertMessage {
+	const link = `${origin}/newsroom/comments`;
+	const privacy = "لا يتضمّن هذا التنبيه نصّ الرسالة لحماية خصوصية المرسل.";
+	const stop = "يمكنك إيقاف التنبيهات من صفحة غرفة الأخبار.";
 	return {
 		subject: "تعليق جديد بانتظار المراجعة — Arabs Startups",
-		text: [
-			"وصل تعليق جديد بانتظار المراجعة.",
-			"",
-			`افتح غرفة الأخبار: ${origin}/newsroom/comments`,
-			"",
-			"لا يتضمّن هذا التنبيه نصّ الرسالة لحماية خصوصية المرسل.",
-			"يمكنك إيقاف التنبيهات من صفحة غرفة الأخبار.",
-		].join("\n"),
+		text: ["وصل تعليق جديد بانتظار المراجعة.", "", `افتح غرفة الأخبار: ${link}`, "", privacy, stop].join("\n"),
+		html: renderEmailHtml({
+			locale: "ar",
+			origin,
+			preheader: "وصل تعليق جديد بانتظار المراجعة.",
+			eyebrow: "تنبيه للفريق",
+			heading: "تعليق جديد بانتظار المراجعة",
+			blocks: [{ kind: "text", text: "وصل تعليق جديد على أحد المقالات، وهو بانتظار المراجعة قبل النشر." }],
+			button: { label: "راجع التعليقات", href: link },
+			footnote: `${privacy}\n${stop}`,
+		}),
 	};
 }
 

@@ -20,10 +20,12 @@ Pull request · push to main · every Monday 03:17 UTC
  ├─ security ....... gitleaks secret scan of the whole git history
  │                   actionlint + shellcheck · zizmor workflow security audit
  ├─ sast ........... Semgrep: JavaScript, TypeScript, Node.js and secrets rules
- └─ browser-tests .. Playwright on desktop and mobile · production-build boundary tests
+ ├─ browser-tests .. three parallel parts: Playwright desktop · Playwright mobile
+ │                   · production-build boundary tests
+ └─ all-checks ..... "All checks passed": green only when every job above is green
 
 Manual run (Actions → CI → Run workflow → deploy: production)  — optional, see §3
- └─ deploy ......... starts only after all four jobs pass on the same commit
+ └─ deploy ......... starts only after every check passes on the same commit
                      main only → npm ci → build → predeploy safety checks
                      → wrangler deploy (only this step sees the Cloudflare token)
                      → smoke test of the live site → summary with the rollback command
@@ -34,8 +36,10 @@ Manual run (Actions → CI → Run workflow → deploy: production)  — optiona
 | Code quality and dependencies | a package comes from outside the npm registry or has no integrity hash; the lockfile is out of sync; a known vulnerability (moderate or worse in site packages, high or worse in tooling); a registry signature is invalid; any lint warning; a type error; a failing unit test; `seed/seed.json` differs from its generator |
 | Secrets and workflow security | a secret anywhere in git history; a broken or unsafe workflow (unpinned action, script injection, leaked credentials, excessive permissions) |
 | Static analysis (Semgrep) | a risky code pattern or a hard-coded secret |
-| Browser and production-build tests | any public, comment, contact, access or episode test fails; the production build exposes the CMS, newsroom or dev helpers, or breaks the CSP |
-| Deploy | the branch is not `main`; predeploy finds placeholders, test keys, a missing database id or preview URLs; the deploy fails; the live site fails a smoke check |
+| Browser tests (desktop), Browser tests (mobile) | any public, comment, contact, access or episode test fails |
+| Production-build boundary tests | the production build exposes the CMS, newsroom or dev helpers, or breaks the CSP |
+| All checks passed | any job above failed, was cancelled or was skipped |
+| Deploy | the branch is not `main`; the Cloudflare secrets are missing; predeploy finds placeholders, test keys, a missing database id or preview URLs; the deploy fails; the live site fails a smoke check |
 
 The smoke test (`scripts/smoke-test.mjs`; on a laptop `npm run smoke -- https://arabsstartups.com`)
 checks the live site after each deploy: `/healthz` answers, the home page sends
@@ -98,6 +102,22 @@ Code changes made while fixing lint findings:
 - `package.json`: an override pins `minimatch` to `11.0.3`. It fixes advisory
   GHSA-g3hv-75wg-m249, which reached us through the new lint packages.
 - `wrangler.jsonc`: `preview_urls: false`, so the site has exactly one public address.
+
+Speed and reliability review (23 Nov 2026), based on the job timings of runs
+14–17:
+
+| Finding | Effect | Change |
+|---|---|---|
+| One job ran the desktop browser tests, the mobile browser tests and the production-build tests one after another (121–166 s, the slowest job) | Every run waited for the sum of the three | Three parallel parts; each has its own local database, so they cannot disturb each other |
+| Playwright downloaded the full Chromium (19–41 s) | Slower, more network to fail | Only the headless shell is installed (`--only-shell`); the tests run headless |
+| Four separate required checks | Renaming or splitting a job would block merges until the branch rules were edited | One required check, **All checks passed**, which fails unless every job succeeded |
+| The deploy in run 17 failed at `wrangler deploy` after 1 s with no clear reason | Hard to tell what to fix | The deploy step first checks that both Cloudflare secrets exist and names the fix if not |
+| npm used its default of 2 retries | A slow registry could fail a run | 5 retries; no audit or funding requests during installs (the audits run as their own step) |
+| Failed-test reports from parallel parts would overwrite each other | Lost evidence | Each part keeps its own report |
+
+Unchanged on purpose: the deploy job still installs without a shared cache and
+builds from scratch, so nothing made by another job can reach the job that
+holds the token.
 
 ---
 
@@ -197,7 +217,7 @@ Repository → Settings → Advanced Security (or "Code security"):
 ### Step 5. First run, checks only
 
 Push to `main`, or Actions → CI → **Run workflow** → branch `main` → deploy
-`none`. All four jobs must turn green.
+`none`. Every job must turn green.
 
 ### Step 6. Protect `main` (public repository, Team or Pro only)
 
@@ -213,14 +233,14 @@ Settings → Rules → Rulesets → New branch ruleset:
 | Block force pushes | on |
 | Require linear history | on |
 | Require a pull request before merging | on: 1 approval when two or more people work on the code (0 for a single maintainer), dismiss stale approvals, require conversation resolution |
-| Require status checks to pass | on, with "Require branches to be up to date"; add the four checks below |
+| Require status checks to pass | on, with "Require branches to be up to date"; add the check below |
 
-Required checks (they appear in the list after the first run, step 5):
+Required check (it appears in the list after the first run, step 5):
 
-- `Code quality and dependencies`
-- `Secrets and workflow security`
-- `Static analysis (Semgrep)`
-- `Browser and production-build tests`
+- `All checks passed`
+
+It is green only when every other job is green, so jobs can be renamed or
+split later without editing this ruleset.
 
 ### Step 7. Create the `production` environment (deploys from GitHub only)
 
@@ -278,6 +298,7 @@ internet. Roll back first, then fix the Access application (RUNBOOK §4).
 | Deploy: "already has externally managed DNS records" | Old parking records on `arabsstartups.com` or `www` | RUNBOOK §1 |
 | Deploy: "Authentication error [code: 10000]" | Token expired, wrong account, or missing zone | Step 8, then update the secret; on a laptop run `npx wrangler login` again |
 | Deploy job never starts, "Waiting" | Production reviewers must approve | Approve in the run page |
+| Deploy: "The production environment has no CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID secret" | Steps 7–8 not done | Do steps 7–8, or deploy from your machine (README → Deploy from your machine) |
 | Deploy: "Production deploys run from main only" | Run started from another branch | Merge to `main`, run again |
 | Smoke test shows `cf-mitigated: challenge` | Cloudflare bot protection challenged the test | Turn off Bot Fight Mode, or add a WAF skip rule for the smoke-test paths |
 | gitleaks finding | A real secret, or a test value that looks like one | Real: rotate it first, then remove it from history. Test value: add `gitleaks:allow` at the end of that line |
@@ -313,9 +334,10 @@ lockfile change made by hand, so the lockfile matches what CI's npm expects.
 - zizmor: update `version:` in the zizmor step.
 - Pick releases that are at least a week old.
 
-**Runner minutes.** One run uses about 15 runner-minutes across its jobs.
-Private repositories on Free get 2,000 minutes a month (about 130 runs);
-public repositories have no limit.
+**Runner minutes.** One run uses about 17 runner-minutes across its jobs (the
+parallel browser parts each install packages and Chromium). Private
+repositories on Free get 2,000 minutes a month (about 115 runs); public
+repositories have no limit.
 
 **Run the same checks locally:**
 

@@ -3,7 +3,8 @@ import { toEmbed } from "../../src/lib/content/embeds";
 import { applyMigrations } from "../../src/lib/db/migrations";
 import { alertRecipients, sendStaffAlert, setAlertPrefs } from "../../src/lib/email/alerts";
 import { sendEmail } from "../../src/lib/email/send";
-import { inquiryReplySubject, inquiryReplyText } from "../../src/lib/email/templates";
+import { inquiryReplyHtml, inquiryReplySubject, inquiryReplyText } from "../../src/lib/email/templates";
+import { renderEmailHtml } from "../../src/lib/email/layout";
 import { createEmDashTables, createTestDb } from "./helpers/sqlite-d1";
 
 let db: ReturnType<typeof createTestDb>;
@@ -72,7 +73,8 @@ describe("staff alerts", () => {
 	it("one inquiry alert per submission, without the message; only editors get the inbox link", async () => {
 		expect(await sendStaffAlert(db, mail, { kind: "inquiries", origin, fallback: "", category: "founder_story" })).toBe(4);
 		expect(await sendStaffAlert(db, mail, { kind: "inquiries", origin, fallback: "" })).toBe(4);
-		const rows = (await db.prepare("SELECT to_addr, subject, body FROM as_dev_outbox").all<{ to_addr: string; subject: string; body: string }>()).results;
+		const rows = (await db.prepare("SELECT to_addr, subject, body, html FROM as_dev_outbox").all<{ to_addr: string; subject: string; body: string; html: string }>()).results;
+		expect(rows.every((row) => row.html?.includes('dir="rtl"'))).toBe(true);
 		expect(rows).toHaveLength(8);
 		const story = rows.find((row) => row.to_addr === "e1@x.com" && row.subject.includes("قصة"));
 		expect(story?.body).toContain(`${origin}/newsroom/inbox`);
@@ -89,6 +91,27 @@ describe("staff alerts", () => {
 });
 
 describe("reply template", () => {
+	it("HTML version is branded, right-to-left and escapes every value", () => {
+		const html = inquiryReplyHtml({
+			reply: '<script>alert(1)</script> شكرًا\nسطر',
+			signature: "فريق",
+			originalSubject: 'خبر "<b>"',
+			originalMessage: "<img src=x onerror=alert(1)>",
+			locale: "ar",
+			origin: "https://arabsstartups.com",
+		});
+		expect(html).toContain('dir="rtl"');
+		expect(html).toContain("arabs<span");
+		expect(html).not.toContain("<script>");
+		expect(html).not.toContain("<img");
+		expect(html).toContain("&lt;script&gt;");
+		expect(html).toContain("شكرًا<br>سطر");
+	});
+	it("refuses non-https button links", () => {
+		const html = renderEmailHtml({ locale: "en", origin: "https://arabsstartups.com", preheader: "p", eyebrow: "e", heading: "h", blocks: [], button: { label: "Go", href: "javascript:alert(1)" } });
+		expect(html).not.toContain("javascript:");
+		expect(html).toContain('dir="ltr"');
+	});
 	it("quotes the original message and never includes internal notes", () => {
 		const text = inquiryReplyText({ reply: "شكرًا", signature: "فريق", originalSubject: "خبر", originalMessage: "سطر ١\nسطر ٢", locale: "ar" });
 		expect(text).toContain("> سطر ١\n> سطر ٢");

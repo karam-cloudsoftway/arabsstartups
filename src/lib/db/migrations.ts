@@ -97,6 +97,11 @@ export const MIGRATIONS: Migration[] = [
 			)`,
 		],
 	},
+	{
+		version: 2,
+		name: "dev outbox keeps the HTML version of each email",
+		statements: [`ALTER TABLE as_dev_outbox ADD COLUMN html TEXT`],
+	},
 ];
 
 const ensured = new WeakMap<object, Promise<void>>();
