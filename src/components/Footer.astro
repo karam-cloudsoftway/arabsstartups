@@ -4,11 +4,14 @@ import { localePath, t, type Locale } from "../i18n";
 
 interface Props {
 	locale: Locale;
+	/** Slugs of published CMS pages; links to other pages are hidden. */
+	pages: Set<string>;
 }
-const { locale } = Astro.props;
+const { locale, pages } = Astro.props;
 const dict = t(locale);
 const year = new Date().getFullYear();
 const L = (path: string) => localePath(locale, path);
+const page = (slug: string, label: string) => (pages.has(slug) ? [{ href: L(`/${slug}`), label }] : []);
 
 const columns = [
 	{
@@ -16,24 +19,24 @@ const columns = [
 		links: [
 			{ href: L("/news"), label: dict.nav.news },
 			{ href: L("/stories"), label: dict.nav.stories },
-			{ href: L("/about"), label: dict.nav.about },
+			...page("about", dict.nav.about),
 			{ href: L("/contact"), label: dict.nav.contact },
-			{ href: L("/submit-news"), label: dict.footer.submit },
+			...page("submit-news", dict.footer.submit),
 			{ href: "/rss.xml", label: "RSS" },
 		],
 	},
 	{
 		title: dict.footer.policies,
 		links: [
-			{ href: L("/privacy"), label: dict.footer.privacy },
-			{ href: L("/terms"), label: dict.footer.terms },
-			{ href: L("/editorial-policy"), label: dict.footer.editorial },
-			{ href: L("/corrections"), label: dict.footer.corrections },
-			{ href: L("/disclosure"), label: dict.footer.disclosure },
-			{ href: L("/comment-policy"), label: dict.footer.commentPolicy },
+			...page("privacy", dict.footer.privacy),
+			...page("terms", dict.footer.terms),
+			...page("editorial-policy", dict.footer.editorial),
+			...page("corrections", dict.footer.corrections),
+			...page("disclosure", dict.footer.disclosure),
+			...page("comment-policy", dict.footer.commentPolicy),
 		],
 	},
-];
+].filter((column) => column.links.length > 0);
 ---
 
 <footer class="site-footer">

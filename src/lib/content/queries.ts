@@ -136,6 +136,32 @@ export async function hasEpisodes(locale: Locale): Promise<boolean> {
 }
 
 /**
+ * Slugs of the CMS pages a visitor can open in this locale, so links to
+ * unpublished pages are hidden instead of leading to a 404 (content brief §4).
+ * English falls back to the Arabic page, as loadLocalized() does. On a read
+ * error no page links are shown.
+ */
+export async function publishedPageSlugs(locale: Locale): Promise<Set<string>> {
+	const slugs = new Set<string>();
+	try {
+		for (const pageLocale of locale === "en" ? (["en", "ar"] as const) : (["ar"] as const)) {
+			const result = await getEmDashCollection("pages", { status: "published", locale: pageLocale, limit: 100 });
+			if (result.error) throw result.error;
+			for (const entry of result.entries as unknown as EntryLike[]) slugs.add(entrySlug(entry));
+		}
+	} catch {
+		slugs.clear();
+	}
+	return slugs;
+}
+
+/** Newest posts with no section: they appear in no section list, so the home page shows them. */
+export async function listUnsectionedPosts(locale: Locale, limit: number): Promise<CardData[]> {
+	const { cards } = await listPosts(locale, { limit: 24 });
+	return cards.filter((card) => !card.categorySlug).slice(0, limit);
+}
+
+/**
  * One entry by slug. Drafts are returned ONLY for EmDash's signed preview
  * requests (editor "Preview" button); everyone else gets published content.
  */

@@ -118,6 +118,7 @@ export const en: typeof ar = {
 		organization: "Organization (optional)",
 		website: "Website (optional)",
 		privacy: "We use your details only to answer your message. Read our",
+		privacyUse: "We use your details only to answer your message.",
 		submit: "Send",
 		sending: "Sending…",
 		success: "Thank you! We received your message and the editorial team will review it.",

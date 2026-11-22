@@ -25,8 +25,9 @@ export async function postId(page: Page, slug: string): Promise<string> {
 /** Create (and optionally publish) a post through EmDash's own content API. */
 export async function createPost(
 	request: APIRequestContext,
-	options: { title: string; slug: string; publish: boolean },
+	options: { title: string; slug: string; publish: boolean; category?: string | null },
 ): Promise<{ id: string; status: number; publishStatus?: number }> {
+	const category = options.category === undefined ? "news" : options.category;
 	const created = await request.post("/_emdash/api/content/posts", {
 		headers: CMS_HEADERS,
 		data: {
@@ -37,7 +38,7 @@ export async function createPost(
 				content_label: "news",
 				content: [{ _type: "block", _key: "a", style: "normal", markDefs: [], children: [{ _type: "span", _key: "b", text: "نص اختبار.", marks: [] }] }],
 			},
-			taxonomies: { category: ["news"] },
+			...(category ? { taxonomies: { category: [category] } } : {}),
 		},
 	});
 	const body = await created.json().catch(() => ({}));

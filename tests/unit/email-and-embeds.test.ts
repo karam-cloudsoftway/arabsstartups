@@ -47,23 +47,44 @@ describe("sendEmail", () => {
 describe("staff alerts", () => {
 	beforeEach(() => {
 		db.raw.exec(`
-			INSERT INTO users (id, email, role, disabled) VALUES ('e1', 'e1@x.com', 40, 0), ('e2', 'e2@x.com', 40, 1), ('c1', 'c1@x.com', 20, 0);
+			INSERT INTO users (id, email, role, disabled) VALUES
+			  ('a1', 'a1@x.com', 50, 0), ('e1', 'e1@x.com', 40, 0), ('e2', 'e2@x.com', 40, 1),
+			  ('w1', 'w1@x.com', 30, 0), ('c1', 'c1@x.com', 20, 0), ('s1', 's1@x.com', 10, 0);
 		`);
 	});
-	it("go only to active, opted-in Editors/Admins (or the fallback address)", async () => {
-		expect(await alertRecipients(db, "inquiries", "desk@x.com")).toEqual(["desk@x.com"]);
-		await setAlertPrefs(db, "e1", { inquiries: true, comments: false });
+	const mail = { resendApiKey: "", mailFrom: "a@x.com", devOutbox: true };
+	const origin = "https://arabsstartups.com";
+
+	it("inquiries go to every active Contributor, Author, Editor and Admin, unless they turned them off", async () => {
+		expect(await alertRecipients(db, "inquiries", "desk@x.com")).toEqual(["a1@x.com", "e1@x.com", "w1@x.com", "c1@x.com"]);
+		await setAlertPrefs(db, "e1", { inquiries: false, comments: true });
+		expect(await alertRecipients(db, "inquiries", "desk@x.com")).toEqual(["a1@x.com", "w1@x.com", "c1@x.com"]);
+	});
+
+	it("comments go only to active, opted-in Editors/Admins (or the fallback address)", async () => {
+		expect(await alertRecipients(db, "comments", "desk@x.com")).toEqual(["desk@x.com"]);
+		await setAlertPrefs(db, "e1", { inquiries: true, comments: true });
 		await setAlertPrefs(db, "e2", { inquiries: true, comments: true });
 		await setAlertPrefs(db, "c1", { inquiries: true, comments: true });
-		expect(await alertRecipients(db, "inquiries", "desk@x.com")).toEqual(["e1@x.com"]);
-		expect(await alertRecipients(db, "comments", "")).toEqual([]);
+		expect(await alertRecipients(db, "comments", "")).toEqual(["e1@x.com"]);
 	});
-	it("contain a link, never the message, and are throttled", async () => {
-		const mail = { resendApiKey: "", mailFrom: "a@x.com", devOutbox: true };
-		expect(await sendStaffAlert(db, mail, { kind: "inquiries", origin: "https://arabsstartups.com", fallback: "desk@x.com" })).toBe(1);
-		expect(await sendStaffAlert(db, mail, { kind: "inquiries", origin: "https://arabsstartups.com", fallback: "desk@x.com" })).toBe(0);
-		const row = await db.prepare("SELECT body FROM as_dev_outbox").first<{ body: string }>();
-		expect(row?.body).toContain("https://arabsstartups.com/newsroom/inbox");
+
+	it("one inquiry alert per submission, without the message; only editors get the inbox link", async () => {
+		expect(await sendStaffAlert(db, mail, { kind: "inquiries", origin, fallback: "", category: "founder_story" })).toBe(4);
+		expect(await sendStaffAlert(db, mail, { kind: "inquiries", origin, fallback: "" })).toBe(4);
+		const rows = (await db.prepare("SELECT to_addr, subject, body FROM as_dev_outbox").all<{ to_addr: string; subject: string; body: string }>()).results;
+		expect(rows).toHaveLength(8);
+		const story = rows.find((row) => row.to_addr === "e1@x.com" && row.subject.includes("قصة"));
+		expect(story?.body).toContain(`${origin}/newsroom/inbox`);
+		expect(story?.body).toContain("قصة مؤسّس");
+		const contributor = rows.find((row) => row.to_addr === "c1@x.com");
+		expect(contributor?.body).not.toContain("/newsroom");
+	});
+
+	it("comment alerts are throttled to one per 15 minutes", async () => {
+		await setAlertPrefs(db, "e1", { inquiries: true, comments: true });
+		expect(await sendStaffAlert(db, mail, { kind: "comments", origin, fallback: "" })).toBe(1);
+		expect(await sendStaffAlert(db, mail, { kind: "comments", origin, fallback: "" })).toBe(0);
 	});
 });
 

@@ -7,11 +7,40 @@
 	"name": "arabsstartups-local",
 	"main": "./src/worker.ts",
 	"compatibility_date": "2026-02-24",
-	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"workers_dev": false,
-	"d1_databases": [{ "binding": "DB", "database_name": "arabsstartups-local" }],
-	"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "arabsstartups-media-local" }],
-	"triggers": { "crons": ["* * * * *"] },
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "arabsstartups-local"
+		},
+		{
+			"binding": "arabsstartups_prod",
+			"database_name": "arabsstartups-prod",
+			"database_id": "23ed2650-a32c-4ed4-8388-998cd9c0b8af"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "MEDIA",
+			"bucket_name": "arabsstartups-media-local"
+		},
+		{
+			"bucket_name": "arabsstartups-media-prod",
+			"binding": "arabsstartups_media_prod"
+		},
+		{
+			"bucket_name": "arabsstartups-backups",
+			"binding": "arabsstartups_backups"
+		}
+	],
+	"triggers": {
+		"crons": [
+			"* * * * *"
+		]
+	},
 	"vars": {
 		"INQUIRY_RETENTION_DAYS": "365",
 	},
@@ -21,22 +50,45 @@
 			"workers_dev": false,
 			// One public address only: no *.workers.dev copies of the site.
 			"preview_urls": false,
-			"observability": { "enabled": true },
+			"observability": {
+				"enabled": true
+			},
 			// database_id: printed by `npx wrangler d1 create arabsstartups-prod` (RUNBOOK §2).
-			"d1_databases": [{ "binding": "DB", "database_name": "arabsstartups-prod" }],
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "arabsstartups-prod",
+					"database_id": "23ed2650-a32c-4ed4-8388-998cd9c0b8af"
+				}
+			],
 			// Public media only. Backups go to a SEPARATE private bucket (docs/OPERATIONS.md → Backups).
-			"r2_buckets": [{ "binding": "MEDIA", "bucket_name": "arabsstartups-media-prod" }],
-			"triggers": { "crons": ["* * * * *"] },
+			"r2_buckets": [
+				{
+					"binding": "MEDIA",
+					"bucket_name": "arabsstartups-media-prod"
+				}
+			],
+			"triggers": {
+				"crons": [
+					"* * * * *"
+				]
+			},
 			"routes": [
-				{ "pattern": "arabsstartups.com", "custom_domain": true },
-				{ "pattern": "www.arabsstartups.com", "custom_domain": true },
+				{
+					"pattern": "arabsstartups.com",
+					"custom_domain": true
+				},
+				{
+					"pattern": "www.arabsstartups.com",
+					"custom_domain": true
+				},
 			],
 			// Secrets (wrangler secret put <NAME> --env production):
 			//   EMDASH_ENCRYPTION_KEY, CF_ACCESS_AUDIENCE, TURNSTILE_SECRET_KEY, RESEND_API_KEY
 			"vars": {
 				"EMDASH_SITE_URL": "https://arabsstartups.com",
 				"CF_ACCESS_TEAM_DOMAIN": "arabsstartups.cloudflareaccess.com",
-				"PUBLIC_TURNSTILE_SITE_KEY": "CHANGE-ME",
+				"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAAF4iXd8MQkCWrD1i",
 				"TURNSTILE_ALLOWED_HOSTNAMES": "arabsstartups.com,www.arabsstartups.com",
 				"MAIL_FROM": "Arabs Startups <hello@arabsstartups.com>",
 				"MAIL_REPLY_TO": "hello@arabsstartups.com",

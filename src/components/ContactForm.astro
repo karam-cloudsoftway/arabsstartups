@@ -6,8 +6,10 @@ import { INQUIRY_CATEGORIES } from "../lib/inbox/validation";
 interface Props {
 	locale: Locale;
 	preset?: string;
+	/** Link the privacy page only when it is published. */
+	privacyPublished: boolean;
 }
-const { locale, preset = "general" } = Astro.props;
+const { locale, preset = "general", privacyPublished } = Astro.props;
 const dict = t(locale);
 const initial = (INQUIRY_CATEGORIES as readonly string[]).includes(preset) ? preset : "general";
 ---
@@ -78,7 +80,16 @@ const initial = (INQUIRY_CATEGORIES as readonly string[]).includes(preset) ? pre
 	</div>
 	<Turnstile action="contact" locale={locale} />
 	<p class="help">
-		{dict.contact.privacy} <a href={localePath(locale, "/privacy")}>{dict.footer.privacy}</a>. {dict.contact.note}
+		{
+			privacyPublished ? (
+				<>
+					{dict.contact.privacy} <a href={localePath(locale, "/privacy")}>{dict.footer.privacy}</a>.
+				</>
+			) : (
+				dict.contact.privacyUse
+			)
+		}{" "}
+		{dict.contact.note}
 	</p>
 	<noscript><p class="notice">{dict.contact.noscript}</p></noscript>
 	<p class="form-status" data-form-status role="status" aria-live="polite" hidden></p>

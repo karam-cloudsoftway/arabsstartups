@@ -7,6 +7,7 @@
 import { getComments } from "emdash";
 import Turnstile from "./Turnstile.astro";
 import { formatDate, isoDate, localePath, t, type Locale } from "../i18n";
+import { publishedPageSlugs } from "../lib/content/queries";
 
 interface Props {
 	contentId: string;
@@ -15,7 +16,14 @@ interface Props {
 }
 const { contentId, locale, open } = Astro.props;
 const dict = t(locale);
-const { items, total } = await getComments({ collection: "posts", contentId, threaded: true });
+const [{ items, total }, pages] = await Promise.all([
+	getComments({ collection: "posts", contentId, threaded: true }),
+	publishedPageSlugs(locale),
+]);
+const policyLinks = [
+	...(pages.has("comment-policy") ? [{ href: localePath(locale, "/comment-policy"), label: dict.comments.policyLink }] : []),
+	...(pages.has("privacy") ? [{ href: localePath(locale, "/privacy"), label: dict.comments.privacyLink }] : []),
+];
 
 interface ShownComment {
 	id: string;
@@ -122,10 +130,19 @@ const comments = items as unknown as ShownComment[];
 					<input id="c-url" name="url" type="text" tabindex="-1" autocomplete="off" />
 				</div>
 				<Turnstile action="comment" locale={locale} />
-				<p class="help">
-					{dict.comments.policyNote} <a href={localePath(locale, "/comment-policy")}>{dict.comments.policyLink}</a> ·{" "}
-					<a href={localePath(locale, "/privacy")}>{dict.comments.privacyLink}</a>
-				</p>
+				{
+					policyLinks.length > 0 && (
+						<p class="help">
+							{dict.comments.policyNote}{" "}
+							{policyLinks.map((link, index) => (
+								<>
+									{index > 0 && " · "}
+									<a href={link.href}>{link.label}</a>
+								</>
+							))}
+						</p>
+					)
+				}
 				<noscript>
 					<p class="notice">{dict.comments.noscript}</p>
 				</noscript>

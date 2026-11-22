@@ -90,6 +90,7 @@ export const POST: APIRoute = async ({ request, url }) => {
 			kind: "inquiries",
 			origin: url.origin,
 			fallback: config.editorialAlertEmail,
+			category: input.category,
 		});
 	} catch (error) {
 		console.error("[contact] alert failed:", error instanceof Error ? error.message : error);

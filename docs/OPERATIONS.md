@@ -39,6 +39,18 @@ with the *Content type* field; the site labels them for readers. Use the
 *Corrections* field for public corrections. Uncheck *Sample content* (or
 delete the sample) before launch.
 
+Where things appear: news and founder stories are both **Articles**
+(*المقالات*). Pick a *Section* (*القسم*) on each article: **News** lists it
+under /news, **Founder Stories** under /stories. An article with no section
+still shows in *Latest* on the home page and in RSS, but in no section list.
+The *Byline* field is the author name shown on the article.
+
+Pages (*الصفحات*) are for fixed pages at the site root (`/about`, `/privacy`…).
+The site links a page in the header, footer, contact page and comment form
+only while it is published, so an unpublished page never shows as a broken
+link. Do not give a page the address of a site section (`news`, `stories`,
+`contact`, `search`, `episodes`): the section wins and the page never shows.
+
 Media: upload only licensed images. Videos and podcasts stay on YouTube /
 Spotify / LinkedIn / Vimeo / Apple Podcasts / SoundCloud — paste the link into an
 episode; other links are shown as plain links, never embedded.
@@ -59,8 +71,17 @@ message only). A person who asks for their data to be deleted: Admin opens the
 message → *Delete permanently*. Messages are deleted automatically after
 `INQUIRY_RETENTION_DAYS` (365 by default).
 
-Each Editor/Admin can opt in to email alerts on the newsroom home page. Alerts
-contain a link, never the message, at most one per 15 minutes.
+Every active Contributor, Author, Editor and Admin gets an email for each new
+contact message or story. The email names the type (story, news, general…) but
+never the message or the sender. Only Editors and Admins get the inbox link,
+because only they can open the inbox. Editors and Admins can turn these emails
+off on the newsroom home page. Contributors and Authors cannot open the
+newsroom, so they cannot turn these emails off themselves. At most
+30 such rounds per hour are sent, so a flood cannot run up the mail bill.
+
+Comment alerts stay opt-in for Editors and Admins, at most one per 15 minutes.
+No email is sent until `RESEND_API_KEY` is set (RUNBOOK §5); locally, emails go
+to the `as_dev_outbox` table instead.
 
 ## Backups and restore
 

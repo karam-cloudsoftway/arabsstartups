@@ -4,7 +4,7 @@ import EpisodeCard from "../components/EpisodeCard.astro";
 import SectionHeading from "../components/SectionHeading.astro";
 import Base from "../layouts/Base.astro";
 import { localePath, t, type Locale } from "../i18n";
-import { CATEGORY, listEpisodes, listPosts } from "../lib/content/queries";
+import { CATEGORY, listEpisodes, listPosts, listUnsectionedPosts } from "../lib/content/queries";
 
 interface Props {
 	locale: Locale;
@@ -13,11 +13,18 @@ const { locale } = Astro.props;
 const dict = t(locale);
 const L = (path: string) => localePath(locale, path);
 
-const [latest, stories, episodes] = await Promise.all([
+const [news, unsectioned, stories, episodes] = await Promise.all([
 	listPosts(locale, { limit: 6, category: CATEGORY.news }),
+	listUnsectionedPosts(locale, 6),
 	listPosts(locale, { limit: 3, category: CATEGORY.stories }),
 	listEpisodes(locale, { limit: 3 }),
 ]);
+// Articles with no section appear in no section list, so "Latest" includes them.
+const latest = {
+	cards: [...news.cards, ...unsectioned]
+		.sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0))
+		.slice(0, 6),
+};
 ---
 
 <Base title={dict.home.title} description={dict.home.description} locale={locale}>

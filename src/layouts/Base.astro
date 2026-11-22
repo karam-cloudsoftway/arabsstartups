@@ -12,7 +12,7 @@ import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import { LOCALE_META, alternatePath, localeFromPath, t, type Locale } from "../i18n";
 import { getConfig } from "../lib/config";
-import { hasEpisodes } from "../lib/content/queries";
+import { hasEpisodes, publishedPageSlugs } from "../lib/content/queries";
 
 interface Props {
 	title: string;
@@ -59,7 +59,7 @@ const pageCtx = createPublicPageContext({
 	siteName: dict.siteName,
 });
 
-const showEpisodes = await hasEpisodes(locale);
+const [showEpisodes, pages] = await Promise.all([hasEpisodes(locale), publishedPageSlugs(locale)]);
 const beaconToken = getConfig().beaconToken;
 const beacon = beaconToken ? JSON.stringify({ token: beaconToken }) : null;
 ---
@@ -102,11 +102,11 @@ const beacon = beaconToken ? JSON.stringify({ token: beaconToken }) : null;
 	<body>
 		<EmDashBodyStart page={pageCtx} />
 		<a href="#main" class="skip-link">{dict.skipToContent}</a>
-		<Header locale={locale} showEpisodes={showEpisodes} alternate={alternate || null} />
+		<Header locale={locale} showEpisodes={showEpisodes} showAbout={pages.has("about")} alternate={alternate || null} />
 		<main id="main" tabindex="-1">
 			<slot />
 		</main>
-		<Footer locale={locale} />
+		<Footer locale={locale} pages={pages} />
 		{
 			beacon && (
 				<script

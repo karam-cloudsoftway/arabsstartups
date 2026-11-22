@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { CMS_HEADERS, createPost, loginAs, uid } from "./helpers";
 
 test.describe("public site", () => {
 	test("home page is Arabic, right-to-left, with the brand and lean navigation", async ({ page }) => {
@@ -90,5 +91,43 @@ test.describe("public site", () => {
 		const published = await page.request.get("/episodes");
 		const hasEpisodes = (await published.text()).includes('class="card"');
 		expect(episodesLinks > 0).toBe(hasEpisodes);
+	});
+
+	test("header, footer, contact and comment links never lead to a 404", async ({ page }) => {
+		const hrefs = new Set<string>();
+		for (const [path, selector] of [
+			["/", ".site-header a, .site-footer a"],
+			["/en", ".site-header a, .site-footer a"],
+			["/contact", "main a"],
+			["/articles/introducing-arabs-startups", ".comment-form a"],
+		] as const) {
+			await page.goto(path);
+			for (const href of await page.locator(selector).evaluateAll((links) => links.map((a) => a.getAttribute("href") ?? ""))) {
+				if (href.startsWith("/")) hrefs.add(href);
+			}
+		}
+		expect(hrefs.size).toBeGreaterThan(5);
+		for (const href of hrefs) {
+			expect((await page.request.get(href)).status(), href).toBe(200);
+		}
+	});
+
+	test("a published article with no section still shows on the home page", async ({ browser }) => {
+		const editorCtx = await browser.newContext();
+		await loginAs(editorCtx, "editor");
+		const slug = uid("nosection-");
+		const title = `بلا قسم ${slug}`;
+		const post = await createPost(editorCtx.request, { title, slug, publish: true, category: null });
+		expect(post.publishStatus).toBe(200);
+		try {
+			const anonymous = await browser.newContext();
+			const home = await anonymous.newPage();
+			await home.goto("/");
+			await expect(home.locator(".card", { hasText: title })).toBeVisible();
+			await anonymous.close();
+		} finally {
+			await editorCtx.request.post(`/_emdash/api/content/posts/${post.id}/unpublish`, { headers: CMS_HEADERS, data: {} });
+			await editorCtx.close();
+		}
 	});
 });

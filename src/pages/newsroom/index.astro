@@ -78,12 +78,12 @@ const emailReady = isEmailConfigured(mailSettings());
 	<section class="panel">
 		<h2>تنبيهات البريد</h2>
 		<p class="help">
-			اختياري لكل عضو. يصلك رابط فقط إلى غرفة الأخبار، دون نصّ الرسالة أو التعليق، وبحدّ أقصى تنبيه واحد كل
-			١٥ دقيقة.
+			يصل كل أعضاء الفريق بريد عند كل رسالة تواصل أو قصة جديدة، ويمكنك إيقافه هنا. تنبيهات التعليقات اختيارية،
+			بحدّ أقصى تنبيه واحد كل ١٥ دقيقة. يصلك رابط فقط، دون نصّ الرسالة أو التعليق.
 		</p>
 		{!emailReady && <p class="notice">البريد الصادر غير مُعدّ بعد، لذلك لن تُرسل التنبيهات.</p>}
 		<form method="post" class="form">
-			<label><input type="checkbox" name="inquiries" value="1" checked={prefs.inquiries} /> رسائل التواصل الجديدة</label>
+			<label><input type="checkbox" name="inquiries" value="1" checked={prefs.inquiries} /> رسائل التواصل والقصص الجديدة</label>
 			<label><input type="checkbox" name="comments" value="1" checked={prefs.comments} /> التعليقات الجديدة بانتظار المراجعة</label>
 			<div><button class="btn btn-primary btn-sm" type="submit">حفظ</button></div>
 		</form>

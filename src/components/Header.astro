@@ -5,18 +5,19 @@ import { localePath, t, type Locale } from "../i18n";
 interface Props {
 	locale: Locale;
 	showEpisodes: boolean;
+	showAbout: boolean;
 	alternate: string | null;
 }
-const { locale, showEpisodes, alternate } = Astro.props;
+const { locale, showEpisodes, showAbout, alternate } = Astro.props;
 const dict = t(locale);
 
-// Lean navigation; channels without published content are hidden.
+// Lean navigation; channels and pages without published content are hidden.
 const items = [
 	{ href: localePath(locale, "/"), label: dict.nav.home, exact: true },
 	{ href: localePath(locale, "/news"), label: dict.nav.news },
 	{ href: localePath(locale, "/stories"), label: dict.nav.stories },
 	...(showEpisodes ? [{ href: localePath(locale, "/episodes"), label: dict.nav.episodes }] : []),
-	{ href: localePath(locale, "/about"), label: dict.nav.about },
+	...(showAbout ? [{ href: localePath(locale, "/about"), label: dict.nav.about }] : []),
 	{ href: localePath(locale, "/contact"), label: dict.nav.contact },
 ];
 
