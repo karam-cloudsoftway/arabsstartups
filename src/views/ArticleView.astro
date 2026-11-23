@@ -5,6 +5,7 @@ import Comments from "../components/Comments.astro";
 import Base from "../layouts/Base.astro";
 import { formatDate, isoDate, localePath, t, type Locale } from "../i18n";
 import { authorOf, entrySlug, listPosts, type EntryLike } from "../lib/content/queries";
+import { FLAGGED_CONTENT_TYPES, contentTypeKey } from "../lib/content/options";
 
 interface Props {
 	entry: EntryLike;
@@ -21,8 +22,8 @@ const excerpt = String(data.excerpt ?? "");
 const category = data.terms?.category?.[0] ?? null;
 const tags = data.terms?.tag ?? [];
 const author = authorOf(entry);
-const contentLabel = String(data.content_label ?? "news");
-const flagged = ["opinion", "partner", "sponsored", "press_release"].includes(contentLabel);
+const contentLabel = contentTypeKey(data.content_label);
+const flagged = FLAGGED_CONTENT_TYPES.includes(contentLabel);
 const publishedAt = (data.publishedAt as Date | null | undefined) ?? null;
 const updatedAt = (data.updatedAt as Date | undefined) ?? null;
 const showUpdated =

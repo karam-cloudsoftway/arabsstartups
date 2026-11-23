@@ -12,7 +12,7 @@ import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import { LOCALE_META, alternatePath, localeFromPath, t, type Locale } from "../i18n";
 import { getConfig } from "../lib/config";
-import { hasEpisodes, publishedPageSlugs } from "../lib/content/queries";
+import { hasEpisodes, publishedPageSlugs, readSiteSettings, sectionsWithPosts } from "../lib/content/queries";
 
 interface Props {
 	title: string;
@@ -32,10 +32,18 @@ interface Props {
 const props = Astro.props;
 const locale: Locale = props.locale ?? localeFromPath(Astro.url.pathname);
 const dict = t(locale);
+const [showEpisodes, pages, sections, siteSettings] = await Promise.all([
+	hasEpisodes(locale),
+	publishedPageSlugs(locale),
+	sectionsWithPosts(locale),
+	readSiteSettings(),
+]);
+// CMS Settings → Site title names the site everywhere; Settings → Tagline is
+// the Arabic footer line (the English edition keeps its own translation).
+const siteName = siteSettings.title ?? dict.siteName;
+const mission = locale === "ar" ? (siteSettings.tagline ?? dict.footer.mission) : dict.footer.mission;
 const fullTitle =
-	props.title === dict.siteName || props.title.includes(dict.siteName)
-		? props.title
-		: `${props.title} — ${dict.siteName}`;
+	props.title === siteName || props.title.includes(siteName) ? props.title : `${props.title} — ${siteName}`;
 const site = Astro.site ?? new URL(Astro.url.origin);
 const canonical = new URL(Astro.url.pathname, site).href;
 const alternate = props.alternate === undefined ? alternatePath(Astro.url.pathname).path : props.alternate;
@@ -56,10 +64,9 @@ const pageCtx = createPublicPageContext({
 		modifiedTime: props.modifiedTime ?? undefined,
 		author: props.author ?? undefined,
 	},
-	siteName: dict.siteName,
+	siteName,
 });
 
-const [showEpisodes, pages] = await Promise.all([hasEpisodes(locale), publishedPageSlugs(locale)]);
 const beaconToken = getConfig().beaconToken;
 const beacon = beaconToken ? JSON.stringify({ token: beaconToken }) : null;
 ---
@@ -79,7 +86,7 @@ const beacon = beaconToken ? JSON.stringify({ token: beaconToken }) : null;
 		/>
 		<Font cssVariable="--font-latin" />
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-		<link rel="alternate" type="application/rss+xml" title={dict.siteName} href="/rss.xml" />
+		<link rel="alternate" type="application/rss+xml" title={siteName} href="/rss.xml" />
 		<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
 		<meta name="theme-color" content="#000012" media="(prefers-color-scheme: dark)" />
 		<meta property="og:locale" content={LOCALE_META[locale].ogLocale} />
@@ -102,11 +109,18 @@ const beacon = beaconToken ? JSON.stringify({ token: beaconToken }) : null;
 	<body>
 		<EmDashBodyStart page={pageCtx} />
 		<a href="#main" class="skip-link">{dict.skipToContent}</a>
-		<Header locale={locale} showEpisodes={showEpisodes} showAbout={pages.has("about")} alternate={alternate || null} />
+		<Header
+			locale={locale}
+			siteName={siteName}
+			showEpisodes={showEpisodes}
+			showAbout={pages.has("about")}
+			sections={sections}
+			alternate={alternate || null}
+		/>
 		<main id="main" tabindex="-1">
 			<slot />
 		</main>
-		<Footer locale={locale} pages={pages} />
+		<Footer locale={locale} pages={pages} sections={sections} siteName={siteName} mission={mission} />
 		{
 			beacon && (
 				<script

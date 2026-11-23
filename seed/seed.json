@@ -8,13 +8,14 @@
 	},
 	"settings": {
 		"title": "Arabs Startups",
-		"tagline": "قصص الشركات الناشئة وروّاد الأعمال العرب"
+		"tagline": "منصّة إعلامية مستقلّة تغطّي الشركات الناشئة وروّاد الأعمال، تبدأ من سوريا وتتّسع نحو المنطقة العربية."
 	},
 	"collections": [
 		{
 			"slug": "posts",
-			"label": "المقالات",
-			"labelSingular": "مقال",
+			"label": "المقالات · Articles",
+			"labelSingular": "مقال · Article",
+			"description": "كل الأخبار وقصص المؤسّسين. القسم يحدّد مكان الظهور: «الأخبار» ← صفحة News، «قصص المؤسّسين» ← صفحة Founder Stories. · All news and founder stories. The Section decides where it shows: News → /news, Founder Stories → /stories.",
 			"urlPattern": "/articles/{slug}",
 			"supports": [
 				"drafts",
@@ -29,79 +30,79 @@
 			"fields": [
 				{
 					"slug": "title",
-					"label": "العنوان",
+					"label": "العنوان · Title",
 					"type": "string",
 					"required": true,
 					"searchable": true
 				},
 				{
 					"slug": "excerpt",
-					"label": "الملخّص",
+					"label": "الملخّص · Summary",
 					"type": "text",
 					"searchable": true
 				},
 				{
 					"slug": "featured_image",
-					"label": "صورة الغلاف (مرخّصة فقط)",
+					"label": "صورة الغلاف، مرخّصة فقط · Cover image (licensed only)",
 					"type": "image"
 				},
 				{
 					"slug": "content",
-					"label": "النص",
+					"label": "النص · Body",
 					"type": "portableText",
 					"searchable": true
 				},
 				{
 					"slug": "content_label",
-					"label": "نوع المحتوى",
+					"label": "شارة المحتوى للقرّاء · Reader badge",
 					"type": "select",
 					"required": true,
-					"defaultValue": "news",
+					"defaultValue": "تقرير إخباري · News report",
 					"translatable": false,
 					"validation": {
 						"options": [
-							"news",
-							"analysis",
-							"interview",
-							"opinion",
-							"partner",
-							"sponsored",
-							"press_release"
+							"تقرير إخباري · News report",
+							"تحليل · Analysis",
+							"حوار · Interview",
+							"مقال رأي · Opinion piece",
+							"محتوى شريك · Partner content",
+							"محتوى مموّل · Sponsored",
+							"بيان صحفي · Press release"
 						]
 					}
 				},
 				{
 					"slug": "editorial_status",
-					"label": "حالة المراجعة التحريرية",
+					"label": "حالة المراجعة التحريرية · Editorial review status",
 					"type": "select",
-					"defaultValue": "writing",
+					"defaultValue": "قيد الكتابة · Writing",
 					"translatable": false,
 					"validation": {
 						"options": [
-							"writing",
-							"in_review",
-							"approved"
+							"قيد الكتابة · Writing",
+							"بانتظار المراجعة · In review",
+							"معتمد للنشر · Approved"
 						]
 					}
 				},
 				{
 					"slug": "source_name",
-					"label": "اسم المصدر",
+					"label": "اسم المصدر · Source name",
 					"type": "string"
 				},
 				{
 					"slug": "source_url",
-					"label": "رابط المصدر",
+					"label": "رابط المصدر · Source link",
 					"type": "url"
 				},
 				{
 					"slug": "corrections",
-					"label": "التصحيحات (تظهر للقرّاء)",
+					"label": "التصحيحات، تظهر للقرّاء · Corrections (shown to readers)",
 					"type": "text"
 				},
 				{
 					"slug": "sample_content",
-					"label": "محتوى نموذجي (يُستبدل قبل الإطلاق)",
+					"label": "محتوى نموذجي، يُستبدل قبل الإطلاق · Sample content (replace before launch)",
 					"type": "boolean",
 					"defaultValue": false,
 					"translatable": false
@@ -110,8 +111,9 @@
 		},
 		{
 			"slug": "episodes",
-			"label": "الندوات والبودكاست",
-			"labelSingular": "حلقة",
+			"label": "الندوات والبودكاست · Webinars & Podcasts",
+			"labelSingular": "حلقة · Episode",
+			"description": "الحلقات تظهر في صفحة «ندوات وبودكاست». · Episodes appear on the Webinars & Podcasts page (/episodes).",
 			"urlPattern": "/episodes/{slug}",
 			"supports": [
 				"drafts",
@@ -125,58 +127,58 @@
 			"fields": [
 				{
 					"slug": "title",
-					"label": "العنوان",
+					"label": "العنوان · Title",
 					"type": "string",
 					"required": true,
 					"searchable": true
 				},
 				{
 					"slug": "excerpt",
-					"label": "الوصف",
+					"label": "الوصف · Description",
 					"type": "text",
 					"searchable": true
 				},
 				{
 					"slug": "episode_type",
-					"label": "النوع",
+					"label": "نوع الحلقة · Episode type",
 					"type": "select",
 					"required": true,
-					"defaultValue": "webinar",
+					"defaultValue": "ندوة · Webinar",
 					"translatable": false,
 					"validation": {
 						"options": [
-							"webinar",
-							"podcast",
-							"video"
+							"ندوة · Webinar",
+							"بودكاست · Podcast",
+							"فيديو · Video"
 						]
 					}
 				},
 				{
 					"slug": "recorded_at",
-					"label": "تاريخ التسجيل",
+					"label": "تاريخ التسجيل · Recorded on",
 					"type": "datetime"
 				},
 				{
 					"slug": "guests",
-					"label": "الضيوف (بموافقتهم)",
+					"label": "الضيوف، بموافقتهم · Guests (with consent)",
 					"type": "string",
 					"searchable": true
 				},
 				{
 					"slug": "media_url",
-					"label": "رابط الحلقة (YouTube / Spotify / LinkedIn …)",
+					"label": "رابط الحلقة: YouTube / Spotify / LinkedIn … · Episode link",
 					"type": "url",
 					"required": true,
 					"translatable": false
 				},
 				{
 					"slug": "featured_image",
-					"label": "صورة (مرخّصة فقط)",
+					"label": "صورة، مرخّصة فقط · Image (licensed only)",
 					"type": "image"
 				},
 				{
 					"slug": "transcript",
-					"label": "النص المكتوب / الملاحظات",
+					"label": "النص المكتوب / الملاحظات · Transcript / notes",
 					"type": "portableText",
 					"searchable": true
 				}
@@ -184,8 +186,9 @@
 		},
 		{
 			"slug": "pages",
-			"label": "الصفحات",
-			"labelSingular": "صفحة",
+			"label": "الصفحات · Pages",
+			"labelSingular": "صفحة · Page",
+			"description": "صفحات ثابتة مثل «من نحن» والسياسات. تظهر روابطها في الموقع بعد النشر فقط. · Fixed pages such as About and the policies. The site links them only once published.",
 			"urlPattern": "/{slug}",
 			"supports": [
 				"drafts",
@@ -198,14 +201,14 @@
 			"fields": [
 				{
 					"slug": "title",
-					"label": "العنوان",
+					"label": "العنوان · Title",
 					"type": "string",
 					"required": true,
 					"searchable": true
 				},
 				{
 					"slug": "content",
-					"label": "النص",
+					"label": "النص · Body",
 					"type": "portableText",
 					"searchable": true
 				}
@@ -216,8 +219,8 @@
 		{
 			"id": "tax-category-ar",
 			"name": "category",
-			"label": "الأقسام",
-			"labelSingular": "قسم",
+			"label": "الأقسام · Sections",
+			"labelSingular": "قسم · Section",
 			"hierarchical": true,
 			"collections": [
 				"posts"
@@ -299,8 +302,8 @@
 		{
 			"id": "tax-tag-ar",
 			"name": "tag",
-			"label": "الوسوم",
-			"labelSingular": "وسم",
+			"label": "الوسوم · Tags",
+			"labelSingular": "وسم · Tag",
 			"hierarchical": false,
 			"collections": [
 				"posts"
@@ -332,6 +335,19 @@
 				}
 			],
 			"locale": "ar"
+		},
+		{
+			"id": "tax-tag-en",
+			"name": "tag",
+			"label": "Tags",
+			"labelSingular": "Tag",
+			"hierarchical": false,
+			"collections": [
+				"posts"
+			],
+			"locale": "en",
+			"translationOf": "tax-tag-ar",
+			"terms": []
 		}
 	],
 	"bylines": [
@@ -350,9 +366,9 @@
 				"data": {
 					"title": "نبدأ من هنا: ما هي Arabs Startups؟",
 					"excerpt": "منصّة إعلامية تروي قصص الشركات الناشئة وروّاد الأعمال، تبدأ من سوريا وتتّسع نحو المنطقة العربية.",
-					"content_label": "news",
+					"content_label": "تقرير إخباري · News report",
 					"sample_content": true,
-					"editorial_status": "approved",
+					"editorial_status": "معتمد للنشر · Approved",
 					"content": [
 						{
 							"_type": "block",
@@ -496,9 +512,9 @@
 				"data": {
 					"title": "لماذا تهمّ قصص المؤسّسين؟",
 					"excerpt": "خلف كل شركة رحلة حقيقية. نستكشف نقاط التحوّل والخيارات الصعبة والدروس العملية وراء العناوين.",
-					"content_label": "analysis",
+					"content_label": "تحليل · Analysis",
 					"sample_content": true,
-					"editorial_status": "approved",
+					"editorial_status": "معتمد للنشر · Approved",
 					"content": [
 						{
 							"_type": "block",
@@ -614,9 +630,9 @@
 				"data": {
 					"title": "الأسئلة التي نطرحها على كل مؤسّس",
 					"excerpt": "نهجنا الشفاف في إعداد الحوارات: ماذا نسأل، ولماذا، وكيف نراجع ما يُنشر.",
-					"content_label": "analysis",
+					"content_label": "تحليل · Analysis",
 					"sample_content": true,
-					"editorial_status": "approved",
+					"editorial_status": "معتمد للنشر · Approved",
 					"content": [
 						{
 							"_type": "block",
@@ -735,9 +751,9 @@
 				"data": {
 					"title": "كيف تُرسل لنا خبرًا أو قصة؟",
 					"excerpt": "دليل مختصر لإرسال الأخبار وأفكار القصص ومقترحات التعاون، وما نتوقّعه من مصادر وتحقّق.",
-					"content_label": "news",
+					"content_label": "تقرير إخباري · News report",
 					"sample_content": true,
-					"editorial_status": "approved",
+					"editorial_status": "معتمد للنشر · Approved",
 					"content": [
 						{
 							"_type": "block",
@@ -855,9 +871,9 @@
 				"data": {
 					"title": "Start here: what is Arabs Startups?",
 					"excerpt": "A media platform telling the stories of startups and founders, starting in Syria and growing across the Arab region.",
-					"content_label": "news",
+					"content_label": "تقرير إخباري · News report",
 					"sample_content": true,
-					"editorial_status": "approved",
+					"editorial_status": "معتمد للنشر · Approved",
 					"content": [
 						{
 							"_type": "block",
@@ -1265,26 +1281,12 @@
 						{
 							"_type": "block",
 							"_key": "k2s",
-							"style": "blockquote",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k2t",
-									"text": "مسودة أولية بانتظار المراجعة القانونية والتحريرية قبل الإطلاق.",
-									"marks": []
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"_key": "k2u",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k2v",
+									"_key": "k2t",
 									"text": "نجمع الحدّ الأدنى من البيانات اللازمة لتشغيل التعليقات ونموذج التواصل.",
 									"marks": []
 								}
@@ -1292,17 +1294,33 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k2w",
+							"_key": "k2u",
 							"style": "h2",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k2x",
+									"_key": "k2v",
 									"text": "ما الذي نجمعه",
 									"marks": []
 								}
 							]
+						},
+						{
+							"_type": "block",
+							"_key": "k2w",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k2x",
+									"text": "التعليقات: الاسم المعروض، والبريد الإلكتروني (لا يُنشر أبدًا)، ونصّ التعليق.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
 						},
 						{
 							"_type": "block",
@@ -1313,7 +1331,7 @@
 								{
 									"_type": "span",
 									"_key": "k2z",
-									"text": "التعليقات: الاسم المعروض، والبريد الإلكتروني (لا يُنشر أبدًا)، ونصّ التعليق.",
+									"text": "نموذج التواصل: الاسم، والبريد، والموضوع، والرسالة، والمؤسّسة اختياريًا.",
 									"marks": []
 								}
 							],
@@ -1329,22 +1347,6 @@
 								{
 									"_type": "span",
 									"_key": "k31",
-									"text": "نموذج التواصل: الاسم، والبريد، والموضوع، والرسالة، والمؤسّسة اختياريًا.",
-									"marks": []
-								}
-							],
-							"listItem": "bullet",
-							"level": 1
-						},
-						{
-							"_type": "block",
-							"_key": "k32",
-							"style": "normal",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k33",
 									"text": "لحماية الموقع من الإساءة نحفظ بصمة مشفّرة لعنوان IP، لا العنوان نفسه.",
 									"marks": []
 								}
@@ -1354,13 +1356,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k34",
+							"_key": "k32",
 							"style": "h2",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k35",
+									"_key": "k33",
 									"text": "لماذا نجمعه",
 									"marks": []
 								}
@@ -1368,13 +1370,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k36",
+							"_key": "k34",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k37",
+									"_key": "k35",
 									"text": "لمراجعة التعليقات قبل نشرها، والردّ على رسائلك، ومنع الرسائل المزعجة. لا نبيع البيانات ولا نضيفك إلى أي قائمة بريدية دون موافقتك.",
 									"marks": []
 								}
@@ -1382,13 +1384,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k38",
+							"_key": "k36",
 							"style": "h2",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k39",
+									"_key": "k37",
 									"text": "مدة الاحتفاظ",
 									"marks": []
 								}
@@ -1396,13 +1398,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k3a",
+							"_key": "k38",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k3b",
+									"_key": "k39",
 									"text": "تُحذف رسائل نموذج التواصل تلقائيًا بعد مدّة الاحتفاظ المحدّدة. يمكنك طلب الاطلاع على بياناتك أو حذفها عبر صفحة «اتصل بنا».",
 									"marks": []
 								}
@@ -1410,13 +1412,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k3c",
+							"_key": "k3a",
 							"style": "h2",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k3d",
+									"_key": "k3b",
 									"text": "ملفات تعريف الارتباط",
 									"marks": []
 								}
@@ -1424,13 +1426,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k3e",
+							"_key": "k3c",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k3f",
+									"_key": "k3d",
 									"text": "لا نستخدم ملفات تعريف ارتباط إعلانية. تُستخدم ملفات ضرورية فقط لتسجيل دخول فريق التحرير ولحماية النماذج من الروبوتات.",
 									"marks": []
 								}
@@ -1449,27 +1451,13 @@
 					"content": [
 						{
 							"_type": "block",
-							"_key": "k3g",
-							"style": "blockquote",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k3h",
-									"text": "Initial draft awaiting legal and editorial review before launch.",
-									"marks": []
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"_key": "k3i",
+							"_key": "k3e",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k3j",
+									"_key": "k3f",
 									"text": "We collect the minimum data needed to run comments and the contact form. Commenter emails are never published. To prevent abuse we store a one-way hash of your IP address, not the address itself. Contact messages are deleted automatically after the retention period. You can ask to see or delete your data through the contact page.",
 									"marks": []
 								}
@@ -1489,27 +1477,13 @@
 					"content": [
 						{
 							"_type": "block",
-							"_key": "k3k",
-							"style": "blockquote",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k3l",
-									"text": "مسودة أولية بانتظار المراجعة القانونية والتحريرية قبل الإطلاق.",
-									"marks": []
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"_key": "k3m",
+							"_key": "k3g",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k3n",
+									"_key": "k3h",
 									"text": "باستخدامك الموقع فأنت توافق على استخدام المحتوى لأغراض مشروعة، واحترام حقوق الملكية الفكرية، وعدم إساءة استخدام خدمات التعليق والتواصل.",
 									"marks": []
 								}
@@ -1528,27 +1502,13 @@
 					"content": [
 						{
 							"_type": "block",
-							"_key": "k3o",
-							"style": "blockquote",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k3p",
-									"text": "Initial draft awaiting legal and editorial review before launch.",
-									"marks": []
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"_key": "k3q",
+							"_key": "k3i",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k3r",
+									"_key": "k3j",
 									"text": "By using this site you agree to use its content lawfully, respect intellectual property and not misuse the comment and contact services.",
 									"marks": []
 								}
@@ -1568,17 +1528,83 @@
 					"content": [
 						{
 							"_type": "block",
+							"_key": "k3k",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3l",
+									"text": "نتحقّق من التواريخ والأرقام وأسماء المستثمرين والمشاركين من مصادر أوّلية أو مؤكّدة مستقلّة.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k3m",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3n",
+									"text": "ننسب المعلومات إلى مصادرها، ولا ننسخ مقالات الآخرين.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k3o",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3p",
+									"text": "نوسم الرأي والمحتوى المدعوم والبيانات الصحفية بوضوح.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"_key": "k3q",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "k3r",
+									"text": "لا نغطّي الشأن السياسي؛ تركيزنا ريادة الأعمال والابتكار والاقتصاد المرتبط بهما.",
+									"marks": []
+								}
+							],
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
 							"_key": "k3s",
-							"style": "blockquote",
+							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
 									"_key": "k3t",
-									"text": "مسودة أولية بانتظار المراجعة القانونية والتحريرية قبل الإطلاق.",
+									"text": "نحصل على موافقة الضيوف على الحوارات المسجّلة وعلى حقوق الصور والوسائط.",
 									"marks": []
 								}
-							]
+							],
+							"listItem": "bullet",
+							"level": 1
 						},
 						{
 							"_type": "block",
@@ -1589,86 +1615,6 @@
 								{
 									"_type": "span",
 									"_key": "k3v",
-									"text": "نتحقّق من التواريخ والأرقام وأسماء المستثمرين والمشاركين من مصادر أوّلية أو مؤكّدة مستقلّة.",
-									"marks": []
-								}
-							],
-							"listItem": "bullet",
-							"level": 1
-						},
-						{
-							"_type": "block",
-							"_key": "k3w",
-							"style": "normal",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k3x",
-									"text": "ننسب المعلومات إلى مصادرها، ولا ننسخ مقالات الآخرين.",
-									"marks": []
-								}
-							],
-							"listItem": "bullet",
-							"level": 1
-						},
-						{
-							"_type": "block",
-							"_key": "k3y",
-							"style": "normal",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k3z",
-									"text": "نوسم الرأي والمحتوى المدعوم والبيانات الصحفية بوضوح.",
-									"marks": []
-								}
-							],
-							"listItem": "bullet",
-							"level": 1
-						},
-						{
-							"_type": "block",
-							"_key": "k40",
-							"style": "normal",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k41",
-									"text": "لا نغطّي الشأن السياسي؛ تركيزنا ريادة الأعمال والابتكار والاقتصاد المرتبط بهما.",
-									"marks": []
-								}
-							],
-							"listItem": "bullet",
-							"level": 1
-						},
-						{
-							"_type": "block",
-							"_key": "k42",
-							"style": "normal",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k43",
-									"text": "نحصل على موافقة الضيوف على الحوارات المسجّلة وعلى حقوق الصور والوسائط.",
-									"marks": []
-								}
-							],
-							"listItem": "bullet",
-							"level": 1
-						},
-						{
-							"_type": "block",
-							"_key": "k44",
-							"style": "normal",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k45",
 									"text": "نغطّي المنظومة كلّها بإنصاف، بصرف النظر عن أي مستثمر أو حاضنة أو مسرّعة.",
 									"marks": []
 								}
@@ -1689,27 +1635,13 @@
 					"content": [
 						{
 							"_type": "block",
-							"_key": "k46",
-							"style": "blockquote",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k47",
-									"text": "Initial draft awaiting legal and editorial review before launch.",
-									"marks": []
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"_key": "k48",
+							"_key": "k3w",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k49",
+									"_key": "k3x",
 									"text": "We verify dates, figures, investors and participant names with primary or independently confirmed sources.",
 									"marks": []
 								}
@@ -1719,13 +1651,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k4a",
+							"_key": "k3y",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k4b",
+									"_key": "k3z",
 									"text": "We credit sources and never copy other publishers' articles.",
 									"marks": []
 								}
@@ -1735,13 +1667,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k4c",
+							"_key": "k40",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k4d",
+									"_key": "k41",
 									"text": "Opinion, sponsored content and press releases are clearly labelled.",
 									"marks": []
 								}
@@ -1751,13 +1683,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k4e",
+							"_key": "k42",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k4f",
+									"_key": "k43",
 									"text": "We do not cover politics; we focus on entrepreneurship, innovation and related economic developments.",
 									"marks": []
 								}
@@ -1779,27 +1711,13 @@
 					"content": [
 						{
 							"_type": "block",
-							"_key": "k4g",
-							"style": "blockquote",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k4h",
-									"text": "مسودة أولية بانتظار المراجعة القانونية والتحريرية قبل الإطلاق.",
-									"marks": []
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"_key": "k4i",
+							"_key": "k44",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k4j",
+									"_key": "k45",
 									"text": "نصحّح الأخطاء بشفافية، ونذكر التصحيح الجوهري وتاريخه في أسفل المقال المعنيّ. لطلب تصحيح، استخدم صفحة «اتصل بنا» واختر «تصحيح».",
 									"marks": []
 								}
@@ -1818,27 +1736,13 @@
 					"content": [
 						{
 							"_type": "block",
-							"_key": "k4k",
-							"style": "blockquote",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k4l",
-									"text": "Initial draft awaiting legal and editorial review before launch.",
-									"marks": []
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"_key": "k4m",
+							"_key": "k46",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k4n",
+									"_key": "k47",
 									"text": "We correct mistakes openly and note significant corrections, with their date, at the end of the article. To request a correction, use the contact page and choose “Correction”.",
 									"marks": []
 								}
@@ -1858,42 +1762,14 @@
 					"content": [
 						{
 							"_type": "block",
-							"_key": "k4o",
-							"style": "blockquote",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k4p",
-									"text": "مسودة أولية بانتظار المراجعة القانونية والتحريرية قبل الإطلاق.",
-									"marks": []
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"_key": "k4q",
+							"_key": "k48",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k4r",
+									"_key": "k49",
 									"text": "نُميّز بوضوح المحتوى المدعوم والبيانات الصحفية عن التقارير المستقلّة. يحمل كل محتوى مدعوم وسمًا ظاهرًا.",
-									"marks": []
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"_key": "k4s",
-							"style": "normal",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k4t",
-									"text": "يُنشر بيان الملكية القانونية بعد استكمال التحقّق منه.",
 									"marks": []
 								}
 							]
@@ -1911,28 +1787,14 @@
 					"content": [
 						{
 							"_type": "block",
-							"_key": "k4u",
-							"style": "blockquote",
-							"markDefs": [],
-							"children": [
-								{
-									"_type": "span",
-									"_key": "k4v",
-									"text": "Initial draft awaiting legal and editorial review before launch.",
-									"marks": []
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"_key": "k4w",
+							"_key": "k4a",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k4x",
-									"text": "Sponsored content and press releases are always clearly labelled. A legal ownership statement will be published once verified.",
+									"_key": "k4b",
+									"text": "Sponsored content and press releases are always clearly labelled.",
 									"marks": []
 								}
 							]
@@ -1951,13 +1813,13 @@
 					"content": [
 						{
 							"_type": "block",
-							"_key": "k4y",
+							"_key": "k4c",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k4z",
+									"_key": "k4d",
 									"text": "نرحّب بالتعليقات المحترمة وذات الصلة. تُراجَع كل التعليقات قبل نشرها.",
 									"marks": []
 								}
@@ -1965,13 +1827,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k50",
+							"_key": "k4e",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k51",
+									"_key": "k4f",
 									"text": "لا تحرّش ولا تشهير ولا ادّعاءات مختلَقة.",
 									"marks": []
 								}
@@ -1981,13 +1843,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k52",
+							"_key": "k4g",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k53",
+									"_key": "k4h",
 									"text": "لا رسائل مزعجة ولا ترويج غير مطلوب.",
 									"marks": []
 								}
@@ -1997,13 +1859,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k54",
+							"_key": "k4i",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k55",
+									"_key": "k4j",
 									"text": "لا تنشر بيانات شخصية لأي شخص.",
 									"marks": []
 								}
@@ -2013,13 +1875,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k56",
+							"_key": "k4k",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k57",
+									"_key": "k4l",
 									"text": "قد يردّ المحرّرون علنًا، ويظهر ردّهم بوسم «فريق التحرير».",
 									"marks": []
 								}
@@ -2029,13 +1891,13 @@
 						},
 						{
 							"_type": "block",
-							"_key": "k58",
+							"_key": "k4m",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k59",
+									"_key": "k4n",
 									"text": "بريدك الإلكتروني لا يُنشر أبدًا. يظهر تنبيه واضح عندما يكون تعليقك بانتظار المراجعة.",
 									"marks": []
 								}
@@ -2054,13 +1916,13 @@
 					"content": [
 						{
 							"_type": "block",
-							"_key": "k5a",
+							"_key": "k4o",
 							"style": "normal",
 							"markDefs": [],
 							"children": [
 								{
 									"_type": "span",
-									"_key": "k5b",
+									"_key": "k4p",
 									"text": "We welcome respectful, relevant comments. Every comment is reviewed before it is published. No harassment, defamation, spam, unsolicited promotion or disclosure of anyone's personal information. Editors may reply publicly; their replies carry an “Editorial team” badge. Your email address is never published.",
 									"marks": []
 								}

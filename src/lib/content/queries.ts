@@ -2,8 +2,9 @@
  * Content queries for public pages, on top of EmDash's query API.
  * Only published content is ever returned to visitors.
  */
-import { getEmDashCollection, getEmDashEntry, getTermsForEntries } from "emdash";
+import { getEmDashCollection, getEmDashEntry, getSiteSettings, getTermsForEntries } from "emdash";
 import type { Locale } from "../../i18n";
+import { EPISODE_TYPES, contentTypeKey, type ContentType, type EpisodeType } from "./options";
 
 export const CATEGORY = {
 	news: "news",
@@ -34,7 +35,7 @@ export interface CardData {
 	excerpt: string;
 	categorySlug: string | null;
 	categoryLabel: string | null;
-	contentLabel: string;
+	contentLabel: ContentType;
 	author: string | null;
 	date: Date | null;
 	sample: boolean;
@@ -64,7 +65,7 @@ export function toCard(entry: EntryLike, category?: { slug: string; label: strin
 		excerpt: String(data.excerpt ?? ""),
 		categorySlug: category?.slug ?? null,
 		categoryLabel: category?.label ?? null,
-		contentLabel: String(data.content_label ?? "news"),
+		contentLabel: contentTypeKey(data.content_label),
 		author: authorOf(entry),
 		date: (data.publishedAt as Date | null | undefined) ?? null,
 		sample: data.sample_content === true,
@@ -111,18 +112,42 @@ export async function listPosts(
 
 export async function listEpisodes(
 	locale: Locale,
-	options: { limit?: number; type?: string; cursor?: string } = {},
+	options: { limit?: number; type?: EpisodeType; cursor?: string } = {},
 ): Promise<{ entries: EntryLike[]; nextCursor?: string }> {
 	const result = await getEmDashCollection("episodes", {
 		status: "published",
 		locale,
 		limit: options.limit ?? 12,
 		...(options.cursor ? { cursor: options.cursor } : {}),
-		...(options.type ? { where: { episode_type: options.type } } : {}),
+		...(options.type ? { where: { episode_type: [EPISODE_TYPES[options.type], options.type] } } : {}),
 		orderBy: { published_at: "desc" },
 	});
 	if (result.error) throw result.error;
 	return { entries: result.entries as unknown as EntryLike[], nextCursor: result.nextCursor };
+}
+
+/** CMS Settings → title and tagline (null when unset or unreadable). */
+export async function readSiteSettings(): Promise<{ title: string | null; tagline: string | null }> {
+	try {
+		const settings = (await getSiteSettings()) as { title?: unknown; tagline?: unknown } | null;
+		const text = (value: unknown) => (typeof value === "string" && value.trim() ? value.trim().slice(0, 300) : null);
+		return { title: text(settings?.title), tagline: text(settings?.tagline) };
+	} catch {
+		return { title: null, tagline: null };
+	}
+}
+
+/** Channels with no published content are never shown (content brief §4). */
+export async function sectionsWithPosts(locale: Locale): Promise<{ news: boolean; stories: boolean }> {
+	const has = async (category: string) => {
+		try {
+			return (await listPosts(locale, { limit: 1, category })).cards.length > 0;
+		} catch {
+			return false;
+		}
+	};
+	const [news, stories] = await Promise.all([has(CATEGORY.news), has(CATEGORY.stories)]);
+	return { news, stories };
 }
 
 /** Channels with no published content are never shown (content brief §4). */

@@ -40,8 +40,16 @@ with the *Content type* field; the site labels them for readers. Use the
 delete the sample) before launch.
 
 Where things appear: news and founder stories are both **Articles**
-(*المقالات*). Pick a *Section* (*القسم*) on each article: **News** lists it
-under /news, **Founder Stories** under /stories. An article with no section
+(*المقالات · Articles*). Pick a *Section* (*الأقسام · Sections*) on each article: **News** lists it
+under /news, **Founder Stories** under /stories. A section with no published
+article in a language is hidden from that language's menu.
+An article publishes only when *Editorial review status* is **Approved**
+(*معتمد للنشر · Approved*); the CMS shows the reason otherwise.
+CMS Settings → *Site title* names the site, and *Tagline* is the Arabic footer
+line. The CMS menus *Menus*, *Widgets* and *Sections* are hidden: the site
+does not use them. All CMS names live in `scripts/cms-names.mjs`; after a
+change run `npm run seed:build` and apply `node scripts/cms-names-sql.mjs`
+to existing databases (back up first). An article with no section
 still shows in *Latest* on the home page and in RSS, but in no section list.
 The *Byline* field is the author name shown on the article.
 

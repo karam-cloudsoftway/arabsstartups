@@ -11,6 +11,7 @@
  * Every piece of text is HTML-escaped here. Callers pass plain text only.
  * Every email is also sent as plain text (see send.ts).
  */
+import { SOCIAL } from "../site";
 
 export type EmailLocale = "ar" | "en";
 
@@ -140,7 +141,7 @@ ${blocks}${facts}${cta}${footnote}
 </table>
 </td></tr>
 <tr><td style="padding:20px 32px;background:${C.page};border-top:1px solid ${C.border};font-size:12px;line-height:1.7;color:${C.muted};">
-${escapeHtml(tagline)}<br><a href="${escapeHtml(origin)}" dir="ltr" style="color:${C.muted};text-decoration:underline;">${escapeHtml(new URL(origin).host)}</a>
+${escapeHtml(tagline)}<br><a href="${escapeHtml(origin)}" dir="ltr" style="color:${C.muted};text-decoration:underline;">${escapeHtml(new URL(origin).host)}</a> &nbsp;·&nbsp; <a href="${SOCIAL.linkedin}" dir="ltr" style="color:${C.muted};text-decoration:underline;">LinkedIn</a>
 </td></tr>
 </table>
 </td></tr>

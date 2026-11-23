@@ -1,13 +1,19 @@
 ---
 import Logo from "./Logo.astro";
+import LinkedInLink from "./LinkedInLink.astro";
 import { localePath, t, type Locale } from "../i18n";
 
 interface Props {
 	locale: Locale;
 	/** Slugs of published CMS pages; links to other pages are hidden. */
 	pages: Set<string>;
+	/** Sections with published posts in this language; empty ones are hidden. */
+	sections: { news: boolean; stories: boolean };
+	siteName: string;
+	/** Footer line under the logo (CMS Settings → Tagline on Arabic pages). */
+	mission: string;
 }
-const { locale, pages } = Astro.props;
+const { locale, pages, sections, siteName, mission } = Astro.props;
 const dict = t(locale);
 const year = new Date().getFullYear();
 const L = (path: string) => localePath(locale, path);
@@ -17,8 +23,8 @@ const columns = [
 	{
 		title: dict.footer.content,
 		links: [
-			{ href: L("/news"), label: dict.nav.news },
-			{ href: L("/stories"), label: dict.nav.stories },
+			...(sections.news ? [{ href: L("/news"), label: dict.nav.news }] : []),
+			...(sections.stories ? [{ href: L("/stories"), label: dict.nav.stories }] : []),
 			...page("about", dict.nav.about),
 			{ href: L("/contact"), label: dict.nav.contact },
 			...page("submit-news", dict.footer.submit),
@@ -42,10 +48,14 @@ const columns = [
 <footer class="site-footer">
 	<div class="container footer-inner">
 		<div class="footer-brand">
-			<a href={L("/")} class="logo-link" aria-label={dict.siteName}>
+			<a href={L("/")} class="logo-link" aria-label={siteName}>
 				<Logo variant="wordmark" />
 			</a>
-			<p class="footer-mission">{dict.footer.mission}</p>
+			<p class="footer-mission">{mission}</p>
+			<div class="footer-social">
+				<span class="footer-social-label">{dict.social.followUs}</span>
+				<LinkedInLink locale={locale} />
+			</div>
 		</div>
 		{
 			columns.map((column) => (
@@ -89,6 +99,17 @@ const columns = [
 		color: var(--muted-fg);
 		margin-block-start: var(--space-md);
 		max-width: 42ch;
+	}
+	.footer-social {
+		display: flex;
+		align-items: center;
+		gap: var(--space-md);
+		margin-block-start: var(--space-lg);
+	}
+	.footer-social-label {
+		font-size: var(--fs-small);
+		font-weight: 700;
+		color: var(--muted-fg);
 	}
 	.footer-col-title {
 		font-size: var(--fs-small);

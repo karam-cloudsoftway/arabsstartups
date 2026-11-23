@@ -1,0 +1,121 @@
+---
+/**
+ * Link to the official LinkedIn company page.
+ * variant "icon": square icon button (footer). "card": follow card (contact page).
+ * Opens in a new tab; rel="noopener" keeps the site safe, "me" marks it as our own profile.
+ */
+import { t, type Locale } from "../i18n";
+import { SOCIAL } from "../lib/site";
+
+interface Props {
+	locale: Locale;
+	variant?: "icon" | "card";
+}
+const { locale, variant = "icon" } = Astro.props;
+const dict = t(locale);
+---
+
+{
+	variant === "icon" ? (
+		<a class="li-icon" href={SOCIAL.linkedin} target="_blank" rel="me noopener noreferrer" aria-label={dict.social.linkedinLabel}>
+			<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+				<path
+					fill="currentColor"
+					d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"
+				/>
+			</svg>
+		</a>
+	) : (
+		<a class="li-card" href={SOCIAL.linkedin} target="_blank" rel="me noopener noreferrer">
+			<span class="li-mark" aria-hidden="true">
+				<svg viewBox="0 0 24 24" width="22" height="22" focusable="false">
+					<path
+						fill="currentColor"
+						d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45z"
+					/>
+				</svg>
+			</span>
+			<span class="li-text">
+				<strong>{dict.social.followTitle}</strong>
+				<span>{dict.social.followCopy}</span>
+			</span>
+			<span class="li-cta">
+				{dict.social.followCta}
+				<span class="sr-only">{dict.social.newTab}</span>
+			</span>
+		</a>
+	)
+}
+
+<style>
+	.li-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 44px;
+		min-height: 44px;
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		color: var(--fg);
+		background: var(--bg);
+		transition: color var(--t-base) var(--ease), border-color var(--t-base) var(--ease);
+	}
+	.li-icon:hover,
+	.li-icon:focus-visible {
+		color: var(--accent);
+		border-color: var(--accent);
+	}
+	.li-card {
+		display: flex;
+		align-items: center;
+		gap: var(--space-md);
+		padding: var(--space-md) var(--space-lg);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		color: var(--fg);
+		text-decoration: none;
+		transition: border-color var(--t-base) var(--ease);
+	}
+	.li-card:hover,
+	.li-card:focus-visible {
+		border-color: var(--accent);
+	}
+	.li-mark {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 44px;
+		block-size: 44px;
+		flex: none;
+		border-radius: var(--radius);
+		background: var(--fg);
+		color: var(--bg);
+	}
+	.li-text {
+		display: grid;
+		gap: 2px;
+		flex: 1 1 auto;
+	}
+	.li-text span {
+		color: var(--muted-fg);
+		font-size: var(--fs-small);
+	}
+	.li-cta {
+		font-weight: 700;
+		color: var(--accent);
+		white-space: nowrap;
+	}
+	.sr-only {
+		position: absolute;
+		inline-size: 1px;
+		block-size: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+	@media (max-width: 520px) {
+		.li-card {
+			flex-wrap: wrap;
+		}
+	}
+</style>

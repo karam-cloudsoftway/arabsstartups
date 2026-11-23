@@ -1,4 +1,5 @@
 import { expect, type APIRequestContext, type BrowserContext, type Page } from "@playwright/test";
+import { CONTENT_TYPES, EDITORIAL_STATUSES } from "../../src/lib/content/options";
 
 export const BASE = "http://localhost:4321";
 export const CMS_HEADERS = { "X-EmDash-Request": "1", Origin: BASE, "Content-Type": "application/json" };
@@ -25,7 +26,7 @@ export async function postId(page: Page, slug: string): Promise<string> {
 /** Create (and optionally publish) a post through EmDash's own content API. */
 export async function createPost(
 	request: APIRequestContext,
-	options: { title: string; slug: string; publish: boolean; category?: string | null },
+	options: { title: string; slug: string; publish: boolean; category?: string | null; approved?: boolean },
 ): Promise<{ id: string; status: number; publishStatus?: number }> {
 	const category = options.category === undefined ? "news" : options.category;
 	const created = await request.post("/_emdash/api/content/posts", {
@@ -35,7 +36,8 @@ export async function createPost(
 			data: {
 				title: options.title,
 				excerpt: "ملخص اختبار",
-				content_label: "news",
+				content_label: CONTENT_TYPES.news,
+				editorial_status: options.approved === false ? EDITORIAL_STATUSES.writing : EDITORIAL_STATUSES.approved,
 				content: [{ _type: "block", _key: "a", style: "normal", markDefs: [], children: [{ _type: "span", _key: "b", text: "نص اختبار.", marks: [] }] }],
 			},
 			...(category ? { taxonomies: { category: [category] } } : {}),

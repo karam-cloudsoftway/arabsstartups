@@ -35,7 +35,7 @@ const latest = {
 				<h1>{dict.home.headline}</h1>
 				<p class="hero-sub">{dict.home.sub}</p>
 				<div class="hero-actions">
-					<a href={L("/news")} class="btn btn-primary">{dict.home.primaryCta}</a>
+					{news.cards.length > 0 && <a href={L("/news")} class="btn btn-primary">{dict.home.primaryCta}</a>}
 					<a href={L("/contact")} class="btn btn-secondary">{dict.home.secondaryCta}</a>
 				</div>
 			</div>
@@ -53,7 +53,7 @@ const latest = {
 						id="latest-heading"
 						tag={dict.home.latestTag}
 						title={dict.home.latestTitle}
-						href={L("/news")}
+						href={news.cards.length > 0 ? L("/news") : undefined}
 						linkLabel={dict.listing.allNews}
 						locale={locale}
 					/>

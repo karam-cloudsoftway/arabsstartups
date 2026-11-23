@@ -1,5 +1,6 @@
 ---
 import ContactForm from "../components/ContactForm.astro";
+import LinkedInLink from "../components/LinkedInLink.astro";
 import Base from "../layouts/Base.astro";
 import { localePath, t, type Locale } from "../i18n";
 import { publishedPageSlugs } from "../lib/content/queries";
@@ -29,6 +30,15 @@ const pages = await publishedPageSlugs(locale);
 				}
 			</header>
 			<ContactForm locale={locale} preset={preset} privacyPublished={pages.has("privacy")} />
+			<div class="contact-social">
+				<LinkedInLink locale={locale} variant="card" />
+			</div>
 		</div>
 	</section>
 </Base>
+
+<style>
+	.contact-social {
+		margin-block-start: var(--space-2xl);
+	}
+</style>

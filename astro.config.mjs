@@ -5,6 +5,15 @@ import auditLog from "@emdash-cms/plugin-audit-log";
 import { access, d1, r2 } from "@emdash-cms/cloudflare";
 import { defineConfig, fontProviders } from "astro/config";
 import emdash from "emdash/astro";
+import { fileURLToPath } from "node:url";
+
+// Articles publish only once their review status is "Approved" (src/plugins/editorial-gate.ts).
+const editorialGate = {
+	id: "as-editorial-gate",
+	version: "1.0.0",
+	format: /** @type {const} */ ("native"),
+	entrypoint: fileURLToPath(new URL("./src/plugins/editorial-gate.ts", import.meta.url)),
+};
 
 // Non-secret, config-time values, read from the build environment only (never
 // from .env, so local development values cannot leak into a production build).
@@ -58,12 +67,16 @@ export default defineConfig({
 				syncRoles: false,
 				syncName: true,
 			}),
-			plugins: [auditLog],
+			plugins: [auditLog, editorialGate],
 			// The editorial team works in Arabic; English stays available.
 			admin: {
 				siteName: "Arabs Startups",
 				favicon: "/favicon.svg",
 				locales: ["ar", "en"],
+				// The header, footer and home page are built in code, so these CMS
+				// features would change nothing on the site. "Sections" also clashed
+				// with our article Sections (الأقسام). Pages stay reachable by URL.
+				hiddenNavItems: ["menus", "widgets", "sections"],
 			},
 			// Runs before every EmDash middleware: security headers and the
 			// origin-side Cloudflare Access gate (see src/middleware/outer.ts).

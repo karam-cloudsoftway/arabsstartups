@@ -6,16 +6,19 @@ interface Props {
 	locale: Locale;
 	showEpisodes: boolean;
 	showAbout: boolean;
+	/** Sections with published posts in this language; empty ones are hidden. */
+	sections: { news: boolean; stories: boolean };
+	siteName: string;
 	alternate: string | null;
 }
-const { locale, showEpisodes, showAbout, alternate } = Astro.props;
+const { locale, showEpisodes, showAbout, sections, siteName, alternate } = Astro.props;
 const dict = t(locale);
 
 // Lean navigation; channels and pages without published content are hidden.
 const items = [
 	{ href: localePath(locale, "/"), label: dict.nav.home, exact: true },
-	{ href: localePath(locale, "/news"), label: dict.nav.news },
-	{ href: localePath(locale, "/stories"), label: dict.nav.stories },
+	...(sections.news ? [{ href: localePath(locale, "/news"), label: dict.nav.news }] : []),
+	...(sections.stories ? [{ href: localePath(locale, "/stories"), label: dict.nav.stories }] : []),
 	...(showEpisodes ? [{ href: localePath(locale, "/episodes"), label: dict.nav.episodes }] : []),
 	...(showAbout ? [{ href: localePath(locale, "/about"), label: dict.nav.about }] : []),
 	{ href: localePath(locale, "/contact"), label: dict.nav.contact },
@@ -28,7 +31,7 @@ const isActive = (href: string, exact?: boolean) =>
 
 <header class="site-header">
 	<div class="container header-inner">
-		<a href={localePath(locale, "/")} class="logo-link" aria-label={`${dict.siteName} — ${dict.nav.home}`}>
+		<a href={localePath(locale, "/")} class="logo-link" aria-label={`${siteName} — ${dict.nav.home}`}>
 			<Logo variant="wordmark" />
 		</a>
 

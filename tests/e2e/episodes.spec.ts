@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { CMS_HEADERS, loginAs, uid } from "./helpers";
+import { EPISODE_TYPES } from "../../src/lib/content/options";
 
 test("a published episode appears with an allow-listed, privacy-friendly player", async ({ browser, page }) => {
 	const adminCtx = await browser.newContext();
@@ -12,7 +13,7 @@ test("a published episode appears with an allow-listed, privacy-friendly player"
 			data: {
 				title: `حلقة تجريبية ${slug}`,
 				excerpt: "حلقة لاختبار المشغّل.",
-				episode_type: "webinar",
+				episode_type: EPISODE_TYPES.webinar,
 				guests: "ضيف بموافقته",
 				media_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 			},

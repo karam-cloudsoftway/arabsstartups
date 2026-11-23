@@ -1,0 +1,22 @@
+{
+	"$comment": "CMS dropdown choices. The CMS shows and stores the text on the right, so editors see readable Arabic and English. The site maps it back to the key on the left (src/lib/content/options.ts). Used by scripts/build-seed.mjs too. Changing a text needs a data update of stored rows (docs/OPERATIONS.md).",
+	"contentType": {
+		"news": "تقرير إخباري · News report",
+		"analysis": "تحليل · Analysis",
+		"interview": "حوار · Interview",
+		"opinion": "مقال رأي · Opinion piece",
+		"partner": "محتوى شريك · Partner content",
+		"sponsored": "محتوى مموّل · Sponsored",
+		"press_release": "بيان صحفي · Press release"
+	},
+	"editorialStatus": {
+		"writing": "قيد الكتابة · Writing",
+		"in_review": "بانتظار المراجعة · In review",
+		"approved": "معتمد للنشر · Approved"
+	},
+	"episodeType": {
+		"webinar": "ندوة · Webinar",
+		"podcast": "بودكاست · Podcast",
+		"video": "فيديو · Video"
+	}
+}

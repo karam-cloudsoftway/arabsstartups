@@ -188,6 +188,14 @@ export const ar = {
 		independent: "محتوى تحريري مستقل.",
 		rss: "خلاصة RSS",
 	},
+	social: {
+		followUs: "تابعنا",
+		linkedinLabel: "Arabs Startups على LinkedIn (يفتح في نافذة جديدة)",
+		followTitle: "تابعنا على LinkedIn",
+		followCopy: "أخبار المنظومة وقصص المؤسّسين وفرص الفعاليات أولًا بأول.",
+		followCta: "متابعة",
+		newTab: "(يفتح في نافذة جديدة)",
+	},
 	feed: {
 		title: "تابعنا عبر RSS",
 		intro: "RSS طريقة لمتابعة مقالاتنا الجديدة في تطبيق قراءة الأخبار، دون زيارة الموقع كل مرة.",

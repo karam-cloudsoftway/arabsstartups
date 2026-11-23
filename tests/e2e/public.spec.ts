@@ -17,6 +17,9 @@ test.describe("public site", () => {
 		// Sample content is clearly labelled.
 		await expect(page.locator(".badge-warn").first()).toHaveText("نموذج تحريري");
 		await expect(page.locator("h1")).toHaveCount(1);
+		const linkedin = page.locator('.site-footer a[href="https://www.linkedin.com/company/arabsstartups"]');
+		await expect(linkedin).toHaveAttribute("rel", /noopener/);
+		await expect(linkedin).toHaveAttribute("aria-label", /LinkedIn/);
 	});
 
 	test("no horizontal scrolling on this viewport", async ({ page }) => {
@@ -101,6 +104,17 @@ test.describe("public site", () => {
 		const published = await page.request.get("/episodes");
 		const hasEpisodes = (await published.text()).includes('class="card"');
 		expect(episodesLinks > 0).toBe(hasEpisodes);
+		// Same rule for the sections, in each language.
+		for (const [home, path, name] of [
+			["/en", "/en/stories", "Founder Stories"],
+			["/en", "/en/news", "News"],
+			["/", "/stories", "قصص المؤسّسين"],
+		] as const) {
+			await page.goto(home);
+			const links = await page.locator(".site-header nav").getByRole("link", { name, exact: true }).count();
+			const hasCards = (await (await page.request.get(path)).text()).includes('class="card');
+			expect(links > 0, path).toBe(hasCards);
+		}
 	});
 
 	test("header, footer, contact and comment links never lead to a 404", async ({ page }) => {
@@ -120,6 +134,31 @@ test.describe("public site", () => {
 		for (const href of hrefs) {
 			expect((await page.request.get(href)).status(), href).toBe(200);
 		}
+	});
+
+	test("an article cannot be published until its review status is Approved", async ({ browser }) => {
+		const editorCtx = await browser.newContext();
+		await loginAs(editorCtx, "editor");
+		const slug = uid("gate-");
+		const post = await createPost(editorCtx.request, { title: `غير معتمد ${slug}`, slug, publish: true, approved: false });
+		expect(post.status).toBe(201);
+		expect(post.publishStatus).not.toBe(200);
+		expect((await editorCtx.request.get(`/articles/${slug}`)).status()).toBe(404);
+		await editorCtx.request.delete(`/_emdash/api/content/posts/${post.id}`, { headers: CMS_HEADERS });
+		await editorCtx.close();
+	});
+
+	test("the CMS hides menus the site does not use, and names lists in both languages", async ({ browser }) => {
+		const adminCtx = await browser.newContext();
+		await loginAs(adminCtx, "admin");
+		const page = await adminCtx.newPage();
+		await page.goto("/_emdash/admin");
+		const nav = page.locator("body");
+		await expect(nav.getByRole("link", { name: "المقالات · Articles", exact: true }).first()).toBeVisible();
+		await expect(nav.getByRole("link", { name: "Menus", exact: true })).toHaveCount(0);
+		await expect(nav.getByRole("link", { name: "Widgets", exact: true })).toHaveCount(0);
+		await expect(nav.getByRole("link", { name: "Sections", exact: true })).toHaveCount(0);
+		await adminCtx.close();
 	});
 
 	test("a published article with no section still shows on the home page", async ({ browser }) => {

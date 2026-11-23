@@ -4,6 +4,7 @@ import EmbedPlayer from "../components/EmbedPlayer.astro";
 import Base from "../layouts/Base.astro";
 import { formatDate, isoDate, t, type Locale } from "../i18n";
 import { entrySlug, type EntryLike } from "../lib/content/queries";
+import { episodeTypeKey } from "../lib/content/options";
 
 interface Props {
 	entry: EntryLike;
@@ -15,7 +16,7 @@ const { entry, locale, isPreview, alternate } = Astro.props;
 const dict = t(locale);
 const data = entry.data;
 const title = String(data.title ?? "");
-const type = String(data.episode_type ?? "webinar") as "webinar" | "podcast" | "video";
+const type = episodeTypeKey(data.episode_type);
 const recorded = (data.recorded_at as Date | string | null | undefined) ?? null;
 const transcript = Array.isArray(data.transcript) && data.transcript.length > 0 ? data.transcript : null;
 ---

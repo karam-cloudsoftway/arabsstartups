@@ -190,6 +190,14 @@ export const en: typeof ar = {
 		independent: "Independent editorial content.",
 		rss: "RSS feed",
 	},
+	social: {
+		followUs: "Follow us",
+		linkedinLabel: "Arabs Startups on LinkedIn (opens in a new tab)",
+		followTitle: "Follow us on LinkedIn",
+		followCopy: "Ecosystem news, founder stories and event updates as they happen.",
+		followCta: "Follow",
+		newTab: "(opens in a new tab)",
+	},
 	feed: {
 		title: "Follow us by RSS",
 		intro: "RSS lets you follow our new articles in a news reader app, without visiting the site each time.",
