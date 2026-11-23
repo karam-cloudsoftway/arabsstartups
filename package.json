@@ -32,10 +32,10 @@
   "dependencies": {
     "@astrojs/cloudflare": "14.4.6",
     "@astrojs/react": "7.1.4",
-    "@emdash-cms/cloudflare": "1.4.0",
-    "@emdash-cms/plugin-audit-log": "0.2.3",
+    "@emdash-cms/cloudflare": "1.5.0",
+    "@emdash-cms/plugin-audit-log": "0.2.4",
     "astro": "7.4.7",
-    "emdash": "1.4.0",
+    "emdash": "1.5.0",
     "jose": "6.2.15",
     "react": "19.2.4",
     "react-dom": "19.2.4",
