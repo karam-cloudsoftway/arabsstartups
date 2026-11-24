@@ -30,7 +30,7 @@
     "secrets:generate": "emdash secrets generate"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "14.4.6",
+    "@astrojs/cloudflare": "14.4.7",
     "@astrojs/react": "7.1.4",
     "@emdash-cms/cloudflare": "1.4.0",
     "@emdash-cms/plugin-audit-log": "0.2.3",
